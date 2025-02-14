@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Sevent</title>
+
+    <!---------- ICONSCOUT CDN -------------->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v2.1.6/css/unicons.css" />
+
+    <!--------- STYLESHEET ------------->
+    <link rel="stylesheet" href="/Sevent.css" />
+</head>
+
+<body>
+    <!------------- NAV BAR---------- -->
+    <nav>
+        <div class="container">
+            <h2 class="log">Sevent Diary</h2>
+            <div class="search-bar">
+                <i class="uil uil-search"></i>
+                <input type="search" placeholder="Search a person" />
+            </div>
+            <div class="create">
+                <div class="modal-container">
+                    <label class="btn btn-primary" id="create-event-btn">Create Group</label>
+                </div>
+
+                <div class="profile-pic">
+                    <img src="/assets/images/logo.jpg" alt="" />
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!------------ main section ------------>
+    <main>
+        <div class="container">
+            <!--------------- left section ------------->
+            <div class="left">
+                <a class="profile">
+                    <div class="profile-pic">
+                        <img src="/assets/images/profile-00.jpg" alt="" />
+                    </div>
+                    <div class="prifile-section">
+                        <h4 id="LOGIN_USERNAME"></h4>
+
+                    </div>
+                </a>
+                <!-------------- left side bar -------------->
+                <div class="leftside">
+                    <a class="leftside-item select">
+                        <span><i class="uil uil-home"></i></span>
+                        <h3>Home</h3>
+                    </a>
+                    <a class="leftside-item" id="notification">
+                        <span><i class="uil uil-bell"><small class="notifi-count">9+</small></i></span>
+
+                        <h3>Notification</h3>
+
+                        <!----------- Notification pop up ------------>
+                        <div class="notification-pop-up">
+                            <div>
+                                <div class="profile-pic">
+                                    <img src="/assets/images/profile-1.jpg" alt="" />
+                                </div>
+                                <div class="notification-body">
+                                    <b> Navodya Asalage </b>invited to Friends Memo Group
+                                    <small class="text-muted">1 Hour ago</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+
+                    <a class="leftside-item" id="theme">
+                        <span><i class="uil uil-palette"></i></span>
+                        <h3>Theme</h3>
+                    </a>
+
+                    <a class="leftside-item">
+                        <span><i class="uil uil-sign-out-alt"></i></span>
+                        <h3>Sign out</h3>
+                    </a>
+                </div>
+
+                <button id="createPostBtn" class="btn btn-primary">Create Post</button>
+                <div id="createPostModal" class="modal-post">
+                    <div class="modal-content-post">
+                        <div class="modal-header-post">
+                            <h2>Create a Post</h2>
+                        </div>
+                        <div class="modal-body">
+                            <form method="post" id="createpost-form">
+                                <div class="form-group">
+                                    <label for="post-text">What's on your mind?</label>
+                                    <textarea id="post-text"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="post-text">User Name</label>
+                                    <input id="postUserName"></input>
+                                </div>
+
+                                <div>
+                                    <label for="post-image">Upload Image</label>
+                                    <input type="file" id="post-image" accept="post-image">
+                                </div>
+
+                                <div id="preview"></div>
+
+                                <button id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                                <button id="createMemoryBtn" type="button" class="btn btn-primary">Post</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-------- middle section ------------->
+            <div class="middle">
+
+                <div class="memo-feeds">
+
+                </div>
+
+
+            </div>
+
+
+            <!----------right section ---------->
+            <div class="right">
+                <div class="groups">
+                    <div class="heading">
+                        <h4>Groups</h4>
+                    </div>
+                    <!-------------- Groups list ----------->
+                    <div class="grpslist">
+                        <div class="group">
+
+                            <div class="profile-pic">
+                                <img src="/assets/images/profile-14.jpg" alt="" />
+                            </div>
+                            <div class="group-name">
+                                <h5 class="group-title">love</h5>
+                                <p class="text-muted">Save Our lovely memories</p>
+                            </div>
+                            <Label class="add-post">+</Label>
+                            <div id="createGroupPostModal" class="modal-post-Group">
+                                <div class="modal-content-postGroup">
+                                    <div class="modal-header-post">
+                                        <h3>Share Post with</h3>
+                                        <h2 id="sharePostGroupName"></h2>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form method="post" id="groupMemories">
+                                            <div class="form-group">
+                                                <label for="post-text">What's on your mind?</label>
+                                                <input type="text" id="groupPostDesc" class="grouppostcss">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="post-text">Group Name</label>
+                                                <input type="text" id="groupName" class="grouppostcss">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="post-text">User Name</label>
+                                                <input type="text" id="groupUserName" class="grouppostcss">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="post-image">Upload Image</label>
+                                                <input type="file" id="groupPostImage" accept="image/*"
+                                                    class="grouppostcss">
+                                            </div>
+
+                                        </form>
+                                    </div>
+
+                                    <button id="canceladdBtn" class="btn btn-secondary">Cancel</button>
+                                    <button id="postaddBtn" class="btn btn-primary">Post</button>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group">
+                            <div class="profile-pic">
+                                <img src="/assets/images/profile-14.jpg" alt="" />
+                            </div>
+                            <div class="group-name">
+                                <h5 class="group-title" id="groupTitle">friends</h5>
+                                <p class="text-muted" id="GGroupDesc">Save Our lovely memories</p>
+                            </div>
+                            <Label class="add-post" id="addPostbtn">+</Label>
+                        </div>
+
+                        <!-- group 3 ---------------------------------------->
+                        <div class="group" id="group_content_3" style="display:none;">
+                            <div class="profile-pic">
+                                <img src="/assets/images/profile-14.jpg" alt="" />
+                            </div>
+                            <div class="group-name">
+                                <h5 class="group-title" id="GROUP_TITLE_3">gg</h5>
+                                <p class="text-muted" id="GROUP_DESC_3">hhh</p>
+                            </div>
+                            <Label class="add-post">+</Label>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+            <!-------- Created Group ------------->
+            <div class="middle" id="middle-Group-ID">
+                <div class="memo-feeds" id="memo-content">
+                    <div class="memo-feed">
+                        <div class="head-group-page">
+                            <div class="profile-pic">
+                                <img src="/assets/images/profile-14.jpg" alt="" />
+                            </div>
+                            <div class="group-name-page">
+                                <h5 id="group-name-in-modal"></h5>
+                            </div>
+                        </div>
+                        <div class="head">
+                            <div class="user">
+                                <div class="profile-pic">
+                                    <img src="/assets/images/profile-00.jpg" alt="" />
+                                </div>
+                                <div class="info">
+                                    <h3 id="name"></h3>
+                                    <small>Sri lanka, Kegalle, just now</small>
+                                </div>
+                            </div>
+                            <span class="edit">
+                                <i class="uil uil-ellipsis-v" id="ellipsis-icon"></i>
+                            </span>
+                        </div>
+                        <div class="caption">
+                            <p>
+                                <b>Pasindu Maduwantha</b> My Mories.
+                                <span class="hash-tag">Friends</span>
+                            </p>
+                        </div>
+                        <div class="feed-photo">
+                            <img src="/assets/images/feed-1.jpg" alt="" />
+                        </div>
+                        <div class="action-btn">
+                            <div class="interct-btns">
+                                <span><i class="uil uil-heart-alt"></i></span>
+                                <span><i class="uil uil-comment-lines"></i></span>
+                            </div>
+                        </div>
+
+                        <div class="like-info">
+                            <span><img src="/assets/images/profile-10.jpg" alt="" /></span>
+                            <span><img src="/assets/images/profile-11.jpg" alt="" /></span>
+                            <span><img src="/assets/images/profile-12.jpg" alt="" /></span>
+                            <p>liked by <b>Navodya asalage</b> and 6 others</p>
+                        </div>
+
+                        <div class="comments text-muted">View all 15 comments</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!------------------ Theme Customization ------------->
+    <div class="customize-theme">
+        <div class="card">
+            <h2>Customize your theme</h2>
+            <p class="text-muted">Manage your font size, color, and background</p>
+
+            <!---------Font Size -------->
+            <div class="font-size">
+                <h4>Font Size</h4>
+                <div>
+                    <h6>Aa</h6>
+                    <div class="choose-size">
+                        <span class="font-size-1"></span>
+                        <span class="font-size-2 select"></span>
+                        <span class="font-size-3"></span>
+                        <span class="font-size-4"></span>
+                        <span class="font-size-5"></span>
+                    </div>
+                    <h3>Aa</h3>
+                </div>
+            </div>
+
+            <!-------- Colors ------------>
+            <div class="theme-colors">
+                <h4>Color</h4>
+                <div class="theme-color">
+                    <span class="theme-1 select"></span>
+                    <span class="theme-2"></span>
+                    <span class="theme-3"></span>
+                    <span class="theme-4"></span>
+                    <span class="theme-5"></span>
+                </div>
+            </div>
+
+            <!----------Background Color----------->
+            <div class="background">
+                <h4>Background</h4>
+                <div class="choose-background">
+                    <div class="background-color-1 select">
+                        <span></span>
+                        <h5 for="background-color-1">Light</h5>
+                    </div>
+                    <div class="background-color-2">
+                        <span></span>
+                        <h5>Dark</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <h2 class="modal-title">Create New Event</h2>
+
+            <form id="eventForm">
+                <div class="form-group">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDate">Date</label>
+                    <input type="datetime-local" id="eventDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Event Image</label>
+                    <div class="image-upload" id="imageUploadArea">
+                        <span class="image-upload-label">Click or drag to upload image</span>
+                        <input type="file" id="eventImage" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="selected-file" id="selectedFileName"></div>
+                </div>
+
+                <div class="btn-container">
+                    <button type="button" class="btn btn-cancel" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-create">Create Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="purchaseModal" class="purchase-modal">
+        <div class="purchase-modal-content">
+            <h2>Purchase Tickets</h2>
+            <div class="ticket-details">
+                <p>Event: <span id="eventName"></span></p>
+                <p>Price per ticket: Rs. <span id="ticketPrice"></span></p>
+            </div>
+            <div class="ticket-quantity">
+                <label>Quantity:</label>
+                <input type="number" id="ticketQuantity" min="1" max="10" value="1">
+            </div>
+            <div class="total">
+                <p>Total: Rs. <span id="totalPrice"></span></p>
+            </div>
+            <div class="btn-container">
+                <button class="btn btn-cancel">Cancel</button>
+                <button class="btn btn-confirm">Confirm Purchase</button>
+            </div>
+        </div>
+    </div>
+    <script src="/Sevent.js"></script>
+    <script src="/jquery-3.6.0.js"></script>
+    <script>
+        const localSetName = localStorage.getItem('name');
+        console.log(localSetName);
+        // Step 2: Access the <h3> element and remove any previous text content
+        const nameElement = document.getElementById('#name');
+        console.log(nameElement)
+        nameElement.textContent = ''; // Clears any existing text content
+
+        // Step 3: Set the name retrieved from localStorage to the <h3> element
+        if (localSetName) {
+            nameElement.textContent = localSetName; // Set the text content to the stored name
+        } else {
+            nameElement.textContent = 'Default Name'; // If no name is stored, set a default value
+        }
+
+
+    </script>
+</body>
+
+</html>

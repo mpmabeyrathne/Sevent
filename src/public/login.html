@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .login-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 14px;
+            color: gray;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+                <p class="error" id="usernameError">Username is required</p>
+            </div>
+            <div class="form-group password-container">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter password">
+                <span class="toggle-password" onclick="togglePassword()">👁️</span>
+                <p class="error" id="passwordError">Password is required</p>
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            let email = document.getElementById("username").value.trim();
+            let password = document.getElementById("password").value.trim();
+            let usernameError = document.getElementById("usernameError");
+            let passwordError = document.getElementById("passwordError");
+
+            usernameError.style.display = email ? "none" : "block";
+            passwordError.style.display = password ? "none" : "block";
+
+            if (email && password) {
+                try {
+                    // 🔹 First, Send POST Request to Get Token
+                    let loginResponse = await fetch("http://localhost:5000/api/auth/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    let loginResult = await loginResponse.json();
+
+                    if (!loginResponse.ok) {
+                        return alert(loginResult.message);
+                    }
+
+                    let token = loginResult.token;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('name', loginResult.user.name);
+                    localStorage.setItem('email', loginResult.user.email);
+                    if (loginResult.status) {
+                        window.location.href = "http://localhost:5000";
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                }
+            }
+        });
+
+
+        function togglePassword() {
+            let passwordField = document.getElementById("password");
+            passwordField.type = passwordField.type === "password" ? "text" : "password";
+        }
+    </script>
+
+</body>
+
+</html>

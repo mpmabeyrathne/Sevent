@@ -1,0 +1,55 @@
+const pool = require('../config/db');
+
+const EventRequest = {
+  // Method to create an event request
+  async createEventRequest(userId, title, description, status) {
+    const query = `
+      INSERT INTO event_requests (user_id, title, description, status) 
+      VALUES ($1, $2, $3, $4) RETURNING id, user_id, title, description, status;
+    `;
+    const values = [userId, title, description, status];
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  },
+
+  async findById(requestId) {
+    const query = 'SELECT * FROM event_requests WHERE id = $1';
+    const result = await pool.query(query, [requestId]);
+    return result.rows[0];
+  },
+
+  // Method to update the status of an event request
+  async updateStatus(requestId, newStatus) {
+    const query = `
+      UPDATE event_requests
+      SET status = $1
+      WHERE id = $2
+      RETURNING id, status;
+    `;
+    const result = await pool.query(query, [newStatus, requestId]);
+    return result.rows[0];
+  },
+
+  async getApprovedEvents() {
+    const query = `
+      SELECT * FROM event_requests 
+      WHERE status = 'approved';
+    `;
+    const result = await pool.query(query);
+    return result.rows;
+  },
+
+  // Method to get event details based on event request
+  async getEventDetailsByRequest(requestId) {
+    const query = `
+      SELECT events.* 
+      FROM events
+      JOIN event_requests ON events.id = event_requests.id
+      WHERE event_requests.id = $1;
+    `;
+    const result = await pool.query(query, [requestId]);
+    return result.rows[0];
+  },
+};
+
+module.exports = EventRequest;
