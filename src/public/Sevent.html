@@ -10,6 +10,7 @@
 
     <!---------- ICONSCOUT CDN -------------->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v2.1.6/css/unicons.css" />
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
 
     <!--------- STYLESHEET ------------->
     <link rel="stylesheet" href="/Sevent.css" />
@@ -18,19 +19,23 @@
 <body>
     <!------------- NAV BAR---------- -->
     <nav>
-        <div class="container">
-            <h2 class="log">Sevent Diary</h2>
-            <div class="search-bar">
-                <i class="uil uil-search"></i>
-                <input type="search" placeholder="Search a person" />
+        <div class="nav-container">
+            <h2 class="logo">Campus Events</h2>
+
+            <div class="nav-links">
+                <a href="/events" class="nav-item">All Events</a>
+                <a href="/my-tickets" class="nav-item">My Tickets</a>
+                <a href="/categories" class="nav-item">Categories</a>
             </div>
-            <div class="create">
-                <div class="modal-container">
-                    <label class="btn btn-primary" id="create-event-btn">Create Group</label>
-                </div>
+
+            <div class="user-section">
+                <a href="/cart" class="cart-icon">
+                    <i class="uil uil-shopping-cart"></i>
+                    <span class="cart-count">0</span>
+                </a>
 
                 <div class="profile-pic">
-                    <img src="/assets/images/logo.jpg" alt="" />
+                    <img src="/assets/images/logo.jpg" alt="Profile" />
                 </div>
             </div>
         </div>
@@ -133,83 +138,37 @@
 
             <!----------right section ---------->
             <div class="right">
-                <div class="groups">
+                <div class="search-box">
+                    <i class="uil uil-search"></i>
+                    <input type="search" placeholder="Search Events...">
+                </div>
+
+                <div class="categories">
                     <div class="heading">
-                        <h4>Groups</h4>
+                        <h4>Event Categories</h4>
                     </div>
-                    <!-------------- Groups list ----------->
-                    <div class="grpslist">
-                        <div class="group">
-
-                            <div class="profile-pic">
-                                <img src="/assets/images/profile-14.jpg" alt="" />
-                            </div>
-                            <div class="group-name">
-                                <h5 class="group-title">love</h5>
-                                <p class="text-muted">Save Our lovely memories</p>
-                            </div>
-                            <Label class="add-post">+</Label>
-                            <div id="createGroupPostModal" class="modal-post-Group">
-                                <div class="modal-content-postGroup">
-                                    <div class="modal-header-post">
-                                        <h3>Share Post with</h3>
-                                        <h2 id="sharePostGroupName"></h2>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form method="post" id="groupMemories">
-                                            <div class="form-group">
-                                                <label for="post-text">What's on your mind?</label>
-                                                <input type="text" id="groupPostDesc" class="grouppostcss">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="post-text">Group Name</label>
-                                                <input type="text" id="groupName" class="grouppostcss">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="post-text">User Name</label>
-                                                <input type="text" id="groupUserName" class="grouppostcss">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="post-image">Upload Image</label>
-                                                <input type="file" id="groupPostImage" accept="image/*"
-                                                    class="grouppostcss">
-                                            </div>
-
-                                        </form>
-                                    </div>
-
-                                    <button id="canceladdBtn" class="btn btn-secondary">Cancel</button>
-                                    <button id="postaddBtn" class="btn btn-primary">Post</button>
-
-                                </div>
-                            </div>
-                        </div>
-                        <div class="group">
-                            <div class="profile-pic">
-                                <img src="/assets/images/profile-14.jpg" alt="" />
-                            </div>
-                            <div class="group-name">
-                                <h5 class="group-title" id="groupTitle">friends</h5>
-                                <p class="text-muted" id="GGroupDesc">Save Our lovely memories</p>
-                            </div>
-                            <Label class="add-post" id="addPostbtn">+</Label>
-                        </div>
-
-                        <!-- group 3 ---------------------------------------->
-                        <div class="group" id="group_content_3" style="display:none;">
-                            <div class="profile-pic">
-                                <img src="/assets/images/profile-14.jpg" alt="" />
-                            </div>
-                            <div class="group-name">
-                                <h5 class="group-title" id="GROUP_TITLE_3">gg</h5>
-                                <p class="text-muted" id="GROUP_DESC_3">hhh</p>
-                            </div>
-                            <Label class="add-post">+</Label>
-                        </div>
-
-
+                    <div class="category-list">
+                        <a href="#" class="category">
+                            <i class="uil uil-music"></i>
+                            <span>Music</span>
+                        </a>
+                        <a href="#" class="category">
+                            <i class="uil uil-circuit"></i>
+                            <span>Technology</span>
+                        </a>
+                        <a href="#" class="category">
+                            <i class="uil uil-basketball"></i>
+                            <span>Sports</span>
+                        </a>
+                        <a href="#" class="category">
+                            <i class="uil uil-graduation-cap"></i>
+                            <span>Education</span>
+                        </a>
+                        <a href="#" class="category">
+                            <i class="uil uil-film"></i>
+                            <span>Entertainment</span>
+                        </a>
                     </div>
-
                 </div>
             </div>
             <!-------- Created Group ------------->
@@ -317,7 +276,7 @@
             </div>
         </div>
     </div>
-    <div id="eventModal" class="modal">
+    <div id="eventModal" class="event-modal">
         <div class="modal-content">
             <button class="close-btn">&times;</button>
             <h2 class="modal-title">Create New Event</h2>

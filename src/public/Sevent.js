@@ -217,7 +217,7 @@ window.onload = function () {
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('eventModal');
+  const eventModal = document.getElementById('eventModal');
   const createBtn = document.getElementById('create-event-btn');
   const closeBtn = document.querySelector('.close-btn');
   const cancelBtn = document.getElementById('cancelBtn');
@@ -227,13 +227,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const eventForm = document.getElementById('eventForm');
 
   // Open modal
+  console.log(createBtn);
   createBtn.addEventListener('click', () => {
-    modal.style.display = 'block';
+    eventModal.style.display = 'block';
+    console.log(eventModal);
   });
 
   // Close modal
   function closeModal() {
-    modal.style.display = 'none';
+    eventModal.style.display = 'none';
     eventForm.reset();
     selectedFileName.textContent = '';
   }
@@ -243,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Close modal when clicking outside
   window.addEventListener('click', (e) => {
-    if (e.target === modal) {
+    if (e.target === eventModal) {
       closeModal();
     }
   });
