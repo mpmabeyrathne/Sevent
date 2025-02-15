@@ -7,6 +7,10 @@ dotenv.config();
 const app = require('./app');
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+  '/uploads/events',
+  express.static(path.join(__dirname, 'uploads', 'events')),
+);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'Sevent.html'));

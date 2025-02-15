@@ -193,26 +193,6 @@ Background_color2.addEventListener('click', () => {
   changeBackground_color();
 });
 
-var ellipsisIcon = document.getElementById('ellipsis-icon');
-var modalElement = document.getElementById('modal');
-
-ellipsisIcon.addEventListener('click', function () {
-  modalElement.style.display = 'block';
-});
-
-//update and delete
-window.onload = function () {
-  // Get the modal element
-  var modalElement = document.getElementById('modal');
-
-  // When the user clicks anywhere outside of the modal, close the modal
-  window.onclick = function (event) {
-    if (event.target == modalElement) {
-      modalElement.style.display = 'none';
-    }
-  };
-};
-
 //Open event modal
 
 // Wait for DOM to be fully loaded
@@ -297,37 +277,53 @@ document.addEventListener('DOMContentLoaded', () => {
 //===================================================================================================================
 
 // Sample event data (this could come from your form submission)
-const events = [
-  {
-    id: 1,
-    userName: 'John Doe',
-    location: 'Sri Lanka, Kegalle',
-    time: 'just now',
-    description: 'My first memory',
-    image: '/assets/images/feed-1.jpg',
-    profilePic: '/assets/images/profile-00.jpg',
-    tickets: {
-      total: 100, // Total number of tickets
-      sold: 45, // Number of tickets sold
-      price: 1500, // Price per ticket
-    },
-  },
-  {
-    id: 2,
-    userName: 'Jane Smith',
-    location: 'Sri Lanka, Colombo',
-    time: '2 hours ago',
-    description: 'Beautiful sunset',
-    image: '/assets/images/feed-2.jpg',
-    profilePic: '/assets/images/profile-00.jpg',
-    tickets: {
-      total: 100, // Total number of tickets
-      sold: 80, // Number of tickets sold
-      price: 1500, // Price per ticket
-    },
-  },
-  // Add more events as needed
-];
+async function fetchAndTransformEvents() {
+  const apiUrl = 'http://localhost:5000/api/events/';
+  const token =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huMUBleGFtcGxlLmNvbSIsImlhdCI6MTczOTY1MjQyNSwiZXhwIjoxNzM5NjU2MDI1fQ.nc1qdkHsa-bYeF0oDOWde284bxUDps88ndEuE1rWqtQ';
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch events');
+    }
+
+    const data = await response.json();
+
+    // Transform the data
+    const transformedEvents = data.events.map((event, index) => ({
+      id: event.id,
+      userName: event.created_by ? `User ${event.created_by}` : 'Anonymous',
+      location: event.location || 'Unknown Location',
+      time: new Date(event.created_at).toLocaleString(), // Format time
+      description: event.description || 'No description available',
+      image: event.image
+        ? `/uploads/events/${event.image}`
+        : '/assets/images/default-event.jpg',
+      profilePic: '/assets/images/profile-00.jpg',
+      tickets: {
+        total: event.total_tickets,
+        sold: event.total_tickets - event.available_tickets,
+        price: 1500, // Default price (adjust if needed)
+      },
+    }));
+
+    console.log(transformedEvents);
+    return transformedEvents;
+  } catch (error) {
+    console.error('Error fetching events:', error);
+  }
+}
+
+// Call the function
+events = fetchAndTransformEvents();
 
 // Function to create a single event feed
 function createEventFeed(event) {
@@ -336,47 +332,40 @@ function createEventFeed(event) {
   const ticketAvailabilityClass =
     availableTickets > 0 ? 'available' : 'sold-out';
 
-  return `         
-        <div class="memo-feed">             
-            <div class="head">                 
-                <div class="user">                     
-                    <div class="profile-pic">                         
-                        <img src="${
-                          event.profilePic
-                        }" alt="" />                     
-                    </div>                     
-                    <div class="info">                         
-                        <h3>${event.userName}</h3>                         
-                        <small>${event.location}, ${
-    event.time
-  }</small>                     
-                    </div>                 
-                </div>                 
-                <span class="edit">                     
+  return `
+        <div class="memo-feed">
+            <div class="head">
+                <div class="user">
+                    <div class="profile-pic">
+                        <img src="${event.profilePic}" alt="" />
+                    </div>
+                    <div class="info">
+                        <h3>${event.userName}</h3>
+                        <small>${event.location}, ${event.time}</small>
+                    </div>
+                </div>
+                <span class="edit">
                     <i class="uil uil-ellipsis-v" data-event-id="${
                       event.id
-                    }"></i>                     
-                    <div id="modal-${
-                      event.id
-                    }" class="modal">                         
-                        <div class="modal-content">                             
-                            <div class="modal-body">                                 
+                    }"></i>
+                    <div id="modal-${event.id}" class="modal">
+                        <div class="modal-content">
+                            <div class="modal-body">
                                 <p class="modal-text" data-action="delete" data-event-id="${
                                   event.id
-                                }">Delete</p>                                 
+                                }">Delete</p>
                                 <p class="modal-text" data-action="update" data-event-id="${
                                   event.id
-                                }">Update</p>                             
-                            </div>                         
-                        </div>                     
-                    </div>                 
-                </span>             
-            </div>             
-            <p>${event.description}</p>             
-            <div class="feed-photo">                 
-                <img src="${event.image}" alt="" />             
+                                }">Update</p>
+                            </div>
+                        </div>
+                    </div>
+                </span>
             </div>
-
+            <p>${event.description}</p>
+            <div class="feed-photo">
+                <img src="${event.image}" alt="" />
+            </div>
             <!-- Ticket Section -->
             <div class="ticket-section">
                 <div class="ticket-info">
@@ -395,32 +384,87 @@ function createEventFeed(event) {
                 ${
                   availableTickets > 0
                     ? `
-                    <button class="btn btn-purchase" data-event-id="${event.id}">
-                        Book Ticket
-                    </button>
-                `
+                        <button class="btn btn-purchase" id="ticket-purches-modal" data-event-id="${event.id}">
+                            Book Ticket
+                        </button>
+                    `
                     : `
-                    <button class="btn btn-sold-out" disabled>
-                        Sold Out
-                    </button>
-                `
+                        <button class="btn btn-sold-out" disabled>
+                            Sold Out
+                        </button>
+                    `
                 }
             </div>
-        </div>     
+            <!-- Comment Section -->
+            <div class="comment-section">
+                <div class="comment-stats">
+                    <i class="uil uil-comment"></i>
+                    <span class="comment-count">0 Comments</span>
+                </div>
+                <div class="comment-form">
+                    <div class="profile-pic">
+                        <img src="${event.profilePic}" alt="" />
+                    </div>
+                    <div class="comment-input-wrapper">
+                        <input type="text" placeholder="Write a comment..." class="comment-input" data-event-id="${
+                          event.id
+                        }">
+                        <button class="comment-submit" data-event-id="${
+                          event.id
+                        }">
+                            <i class="uil uil-message"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="comments-container" id="comments-${event.id}">
+                    <!-- Comments will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Function to create a comment element
+function createCommentElement(comment) {
+  return `
+        <div class="comment" data-comment-id="${comment.id}">
+            <div class="profile-pic">
+                <img src="${comment.profilePic}" alt="" />
+            </div>
+            <div class="comment-content">
+                <div class="comment-header">
+                    <h4>${comment.userName}</h4>
+                    <small>${comment.timestamp}</small>
+                </div>
+                <p>${comment.text}</p>
+                <div class="comment-actions">
+                    <button class="like-btn" data-comment-id="${comment.id}">
+                        <i class="uil uil-heart"></i>
+                        <span class="like-count">${comment.likes}</span>
+                    </button>
+                    <button class="reply-btn" data-comment-id="${comment.id}">
+                        <i class="uil uil-comment"></i>
+                        Reply
+                    </button>
+                </div>
+            </div>
+        </div>
     `;
 }
 
 // Function to render all events
 function renderEvents() {
   const memoFeedsContainer = document.querySelector('.memo-feeds');
+  console.log(memoFeedsContainer);
   memoFeedsContainer.innerHTML = events
     .map((event) => createEventFeed(event))
     .join('');
 }
 
 // Handle modal toggles and actions
-document.addEventListener('DOMContentLoaded', () => {
-  renderEvents();
+document.addEventListener('DOMContentLoaded', async () => {
+  events = await fetchAndTransformEvents(); // Wait for events to load
+  renderEvents(); // Render after data is fetched
 
   // Handle ellipsis click (show/hide modal)
   document.querySelector('.memo-feeds').addEventListener('click', (e) => {
@@ -446,17 +490,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (action === 'delete') {
         // Remove event from array
-        const index = events.findIndex(
-          (event) => event.id === parseInt(eventId),
-        );
-        if (index !== -1) {
-          events.splice(index, 1);
-          renderEvents();
-        }
+        events = events.filter((event) => event.id !== parseInt(eventId));
+        renderEvents();
       } else if (action === 'update') {
-        // Handle update logic
         console.log('Update event:', eventId);
-        // You can open your update modal here
       }
     }
   });
@@ -486,3 +523,168 @@ function addNewEvent(eventData) {
   events.unshift(newEvent); // Add to beginning of array
   renderEvents(); // Re-render all events
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  var modalButton = document.getElementById('ticket-purches-modal');
+  var purchaseModal = document.getElementById('purchaseModal');
+  var cancelButton = document.getElementById('cancelPurchaseBtn');
+
+  // Open modal
+  modalButton.addEventListener('click', function () {
+    purchaseModal.style.display = 'block';
+    console.log(cancelButton);
+  });
+
+  // Close modal when clicking the cancel button
+  cancelButton.addEventListener('click', function () {
+    purchaseModal.style.display = 'none';
+  });
+});
+
+// Add this JavaScript code to handle comment functionality
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Handle comment submission
+  document.addEventListener('click', function (e) {
+    console.log(e.target.dataset.eventId, 'sssssssssssss');
+    if (e.target.matches('.comment-submit')) {
+      const eventId = e.target.dataset.eventId;
+      const inputElement = document.querySelector(
+        `.comment-input[data-event-id="${eventId}"]`,
+      );
+      const commentText = inputElement.value.trim();
+
+      if (commentText) {
+        const comment = {
+          id: Date.now(),
+          userName: 'Current User', // Replace with actual user name
+          profilePic: 'path/to/profile-pic.jpg', // Replace with actual profile pic
+          text: commentText,
+          timestamp: new Date().toLocaleString(),
+          likes: 0,
+        };
+
+        const commentsContainer = document.querySelector(
+          `#comments-${eventId}`,
+        );
+        commentsContainer.insertAdjacentHTML(
+          'afterbegin',
+          createCommentElement(comment),
+        );
+
+        // Update comment count
+        const commentCount = document.querySelector(`#comments-${eventId}`)
+          .children.length;
+        const countElement = e.target
+          .closest('.comment-section')
+          .querySelector('.comment-count');
+        countElement.textContent = `${commentCount} Comments`;
+
+        // Clear input
+        inputElement.value = '';
+      }
+    }
+  });
+
+  // Handle like button clicks
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.like-btn')) {
+      const likeBtn = e.target.closest('.like-btn');
+      const likeCount = likeBtn.querySelector('.like-count');
+      likeCount.textContent = parseInt(likeCount.textContent) + 1;
+    }
+  });
+});
+
+document
+  .getElementById('eventForm')
+  .addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    // Bearer token
+    const token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huMUBleGFtcGxlLmNvbSIsImlhdCI6MTczOTY1MjQyNSwiZXhwIjoxNzM5NjU2MDI1fQ.nc1qdkHsa-bYeF0oDOWde284bxUDps88ndEuE1rWqtQ';
+
+    // Get form values
+    const title = document.getElementById('eventTitle').value;
+    const description = document.getElementById('eventDescription').value;
+    const date = document.getElementById('eventDate').value;
+    const categoryId = document.getElementById('eventCategory').value;
+    const imageFile = document.getElementById('eventImage').files[0];
+    const availableTickets = document.getElementById('availableTickets').value;
+
+    console.log(availableTickets), 'availableTickets';
+    // Create FormData object for file upload
+    const formData = new FormData();
+
+    // Append form data fields separately
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('date', date.split('T')[0]);
+    formData.append('location', 'New York');
+    formData.append('totalTickets', availableTickets);
+    formData.append('availableTickets', availableTickets);
+    formData.append('categoryId', categoryId);
+    formData.append('createdAt', new Date().toISOString()); // Corrected field name
+    formData.append('payload', ''); // Keeping this for consistency, adjust if needed
+
+    // Append the image file
+    if (imageFile) {
+      formData.append('image', imageFile);
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/events/create', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+
+      // Clear form and close modal
+      document.getElementById('eventForm').reset();
+      document.getElementById('eventModal').style.display = 'none';
+      document.getElementById('selectedFileName').textContent = '';
+
+      // Show success message
+      alert('Event created successfully!');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to create event. Please try again.');
+    }
+  });
+
+// Handle image upload UI
+document.getElementById('imageUploadArea').addEventListener('click', () => {
+  document.getElementById('eventImage').click();
+});
+
+document.getElementById('eventImage').addEventListener('change', (e) => {
+  const fileName = e.target.files[0]?.name;
+  if (fileName) {
+    document.getElementById('selectedFileName').textContent = fileName;
+  }
+});
+
+// Handle cancel button
+document.getElementById('cancelBtn').addEventListener('click', () => {
+  document.getElementById('eventForm').reset();
+  document.getElementById('selectedFileName').textContent = '';
+  document.getElementById('eventModal').style.display = 'none';
+});
+
+// Handle close button
+document.querySelector('.close-btn').addEventListener('click', () => {
+  document.getElementById('eventForm').reset();
+  document.getElementById('selectedFileName').textContent = '';
+  document.getElementById('eventModal').style.display = 'none';
+});
