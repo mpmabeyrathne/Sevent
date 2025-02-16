@@ -278,9 +278,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Sample event data (this could come from your form submission)
 async function fetchAndTransformEvents() {
-  const apiUrl = 'http://localhost:5000/api/events/';
+  const apiUrl = 'http://localhost:5000/api/events/approved';
   const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huMUBleGFtcGxlLmNvbSIsImlhdCI6MTczOTY1MjQyNSwiZXhwIjoxNzM5NjU2MDI1fQ.nc1qdkHsa-bYeF0oDOWde284bxUDps88ndEuE1rWqtQ';
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huMUBleGFtcGxlLmNvbSIsImlhdCI6MTczOTY5ODAyMCwiZXhwIjoxNzM5NzAxNjIwfQ.4CAkoUgjX74Ab0q8q7X05Gs_1AQlSf1Vz558XJxW70o';
 
   try {
     const response = await fetch(apiUrl, {

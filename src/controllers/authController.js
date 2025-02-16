@@ -65,3 +65,46 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+exports.updateUserStatus = async (req, res) => {
+  try {
+    const { userId, status } = req.body;
+
+    // Validate status value
+    const validStatuses = ['approved', 'rejected', 'pending'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    // Update user status
+    const updatedUser = await User.approveOrRejectUser(userId, status);
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      message: 'User status updated successfully',
+      user: { id: updatedUser.id, status: updatedUser.status }, // Fix variable usage
+      status: true,
+    });
+  } catch (error) {
+    console.error('Error updating user status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.getAllUsers();
+
+    res.json({
+      message: 'Users retrieved successfully',
+      users,
+      status: true,
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

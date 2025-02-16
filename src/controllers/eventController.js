@@ -45,11 +45,13 @@ exports.createEvent = async (req, res) => {
       imageName, // Pass the uploaded image filename
     );
 
+    console.log(newEvent.id);
     const newEventRequest = await EventRequest.createEventRequest(
       userId,
       title,
       description,
-      'pending', // Set status to 'pending' initially
+      'pending',
+      newEvent.id, // Set status to 'pending' initially
     );
 
     res.status(201).json({
@@ -126,6 +128,7 @@ exports.getApprovedEvents = async (req, res) => {
     // Fetch approved event requests
     const approvedEventRequests = await EventRequest.getApprovedEvents();
 
+    console.log(approvedEventRequests);
     if (approvedEventRequests.length === 0) {
       return res
         .status(404)
@@ -135,7 +138,9 @@ exports.getApprovedEvents = async (req, res) => {
     // For each approved event request, get the associated event details
     const events = [];
     for (let request of approvedEventRequests) {
-      const event = await EventRequest.getEventDetailsByRequest(request.id);
+      const event = await EventRequest.getEventDetailsByRequest(
+        request.event_id,
+      );
       if (event) {
         events.push(event);
       }

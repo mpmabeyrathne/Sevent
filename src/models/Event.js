@@ -35,11 +35,33 @@ const Event = {
 
   // Get all events, sorted by newest first
   async getAllEvents() {
-    const query = 'SELECT * FROM events ORDER BY created_at DESC';
-    const result = await pool.query(query);
-    return result.rows;
-  },
+    const query = `
+    SELECT 
+      e.id, 
+      e.title, 
+      e.description, 
+      e.date, 
+      e.location, 
+      e.total_tickets, 
+      e.available_tickets, 
+      e.category_id, 
+      e.created_by, 
+      e.created_at,
+      e.image,
+      er.status AS request_status  -- Fetch status from event_requests
+    FROM events e
+    LEFT JOIN event_requests er ON e.id = er.event_id
+    ORDER BY e.created_at DESC
+  `;
 
+    try {
+      const result = await pool.query(query);
+      return result.rows;
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      throw error;
+    }
+  },
   // Get all approved events
   async getApprovedEvents() {
     const query = `SELECT * FROM event_requests WHERE status = 'approved' ORDER BY created_at DESC`;
