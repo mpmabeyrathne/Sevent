@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Previous head content remains the same -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Previous styles remain the same */
+        .sidebar-link:hover {
+            background-color: #374151;
+            transition: all 0.3s ease;
+        }
+
+        .status-pending {
+            background-color: #FCD34D;
+            color: #000;
+        }
+
+        .status-approved {
+            background-color: #34D399;
+            color: #000;
+        }
+
+        .status-rejected {
+            background-color: #EF4444;
+            color: #fff;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100">
+    <!-- Previous HTML structure remains the same -->
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-gray-800 p-4">
+            <div class="text-xl font-bold mb-8">Admin Dashboard</div>
+
+            <!-- Navigation -->
+            <nav class="space-y-2">
+                <a href="#" class="sidebar-link block p-3 rounded-lg text-gray-300 hover:text-white"
+                    onclick="showSection('users')">
+                    Users List
+                </a>
+                <a href="#" class="sidebar-link block p-3 rounded-lg text-gray-300 hover:text-white"
+                    onclick="showSection('events')">
+                    Upcoming Events
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8 overflow-auto">
+            <!-- Users Section -->
+            <div id="users-section" class="content-section">
+                <!-- Previous users section HTML remains the same -->
+                <h2 class="text-2xl font-bold mb-6">User Management</h2>
+                <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-700">
+                                <th class="px-6 py-3 text-left">ID</th>
+                                <th class="px-6 py-3 text-left">Name</th>
+                                <th class="px-6 py-3 text-left">Email</th>
+                                <th class="px-6 py-3 text-left">Role</th>
+                                <th class="px-6 py-3 text-left">Status</th>
+                                <th class="px-6 py-3 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Events Section -->
+            <div id="events-section" class="content-section">
+                <h2 class="text-2xl font-bold mb-6">Event Management</h2>
+                <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-700">
+                                <th class="px-6 py-3 text-left">ID</th>
+                                <th class="px-6 py-3 text-left">Image</th>
+                                <th class="px-6 py-3 text-left">Title</th>
+                                <th class="px-6 py-3 text-left">Date</th>
+                                <th class="px-6 py-3 text-left">Location</th>
+                                <th class="px-6 py-3 text-left">Status</th>
+                                <th class="px-6 py-3 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API endpoints
+        const API_ENDPOINTS = {
+            users: 'http://localhost:5000/api/auth/users',
+            userApproval: 'http://localhost:5000/api/auth/user/approved',
+            events: 'http://localhost:5000/api/events/',
+            eventApproval: 'http://localhost:5000/api/events/approve-reject'
+        };
+
+        // Function to fetch data from API
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(endpoint);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                return null;
+            }
+        }
+
+        // Function to update user status
+        async function updateUserStatus(userId, status) {
+            try {
+                const response = await fetch(API_ENDPOINTS.userApproval, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huMUBleGFtcGxlLmNvbSIsImlhdCI6MTczOTY5ODAyMCwiZXhwIjoxNzM5NzAxNjIwfQ.4CAkoUgjX74Ab0q8q7X05Gs_1AQlSf1Vz558XJxW70o'
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        status: status
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                await loadUsers();
+            } catch (error) {
+                console.error('Error updating user status:', error);
+                alert('Failed to update user status');
+            }
+        }
+
+        // Function to update event status
+        async function updateEventStatus(eventId, action) {
+            try {
+                const response = await fetch(`${API_ENDPOINTS.eventApproval}/${eventId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huMUBleGFtcGxlLmNvbSIsImlhdCI6MTczOTY5ODAyMCwiZXhwIjoxNzM5NzAxNjIwfQ.4CAkoUgjX74Ab0q8q7X05Gs_1AQlSf1Vz558XJxW70o'
+                    },
+                    body: JSON.stringify({
+                        action: action
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                await loadEvents();
+            } catch (error) {
+                console.error('Error updating event status:', error);
+                alert('Failed to update event status');
+            }
+        }
+
+        // Previous helper functions remain the same
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Function to populate user table
+        async function loadUsers() {
+            const data = await fetchData(API_ENDPOINTS.users);
+            if (!data || !data.users) return;
+
+            const tableBody = document.getElementById('userTableBody');
+            tableBody.innerHTML = '';
+
+            data.users.forEach(user => {
+                const row = document.createElement('tr');
+                row.className = 'border-t border-gray-700 hover:bg-gray-700';
+
+                row.innerHTML = `
+                    <td class="px-6 py-4">${user.id}</td>
+                    <td class="px-6 py-4">${user.name}</td>
+                    <td class="px-6 py-4">${user.email}</td>
+                    <td class="px-6 py-4">${user.role}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded-full text-xs status-${user.status || 'pending'}">
+                            ${user.status || 'pending'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <button onclick="updateUserStatus(${user.id}, 'approved')" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md mr-2">
+                            Approve
+                        </button>
+                        <button onclick="updateUserStatus(${user.id}, 'rejected')" 
+                            class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md">
+                            Reject
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to populate event table
+        async function loadEvents() {
+            const data = await fetchData(API_ENDPOINTS.events);
+            if (!data || !data.events) return;
+
+            const tableBody = document.getElementById('eventTableBody');
+            tableBody.innerHTML = '';
+
+            data.events.forEach(event => {
+                const row = document.createElement('tr');
+                row.className = 'border-t border-gray-700 hover:bg-gray-700';
+
+                row.innerHTML = `
+                    <td class="px-6 py-4">${event.id}</td>
+                    <td class="px-6 py-4">
+                        <img src="/uploads/events/${event.image}" alt="${event.title}" 
+                            class="w-16 h-16 object-cover rounded">
+                    </td>
+                    <td class="px-6 py-4">${event.title}</td>
+                    <td class="px-6 py-4">${formatDate(event.date)}</td>
+                    <td class="px-6 py-4">${event.location}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded-full text-xs status-${event.request_status || 'pending'}">
+                            ${event.request_status || 'pending'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <button onclick="updateEventStatus(${event.id}, 'approve')" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md mr-2">
+                            Approve
+                        </button>
+                        <button onclick="updateEventStatus(${event.id}, 'reject')" 
+                            class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md">
+                            Reject
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to show/hide sections
+        function showSection(sectionName) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`${sectionName}-section`).classList.add('active');
+
+            // Load data for the selected section
+            if (sectionName === 'users') {
+                loadUsers();
+            } else if (sectionName === 'events') {
+                loadEvents();
+            }
+        }
+
+        // Initial setup
+        showSection('users');
+    </script>
+</body>
+
+</html>
