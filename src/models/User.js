@@ -19,6 +19,12 @@ const User = {
     return result.rows[0];
   },
 
+  async findById(id) {
+    const query = `SELECT * FROM users WHERE id = $1`;
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
+  },
+
   async approveOrRejectUser(userId, status) {
     const query = `UPDATE users SET status = $1 WHERE id = $2 RETURNING *`;
     const values = [status, userId];

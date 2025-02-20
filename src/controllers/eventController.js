@@ -134,7 +134,6 @@ exports.getApprovedEvents = async (req, res) => {
     // Fetch approved event requests
     const approvedEventRequests = await EventRequest.getApprovedEvents();
 
-    console.log(approvedEventRequests);
     if (approvedEventRequests.length === 0) {
       return res
         .status(404)

@@ -244,6 +244,10 @@
                         return alert(loginResult.message);
                     }
 
+                    if (loginResult.user.status !== "approved") {
+                        return showPopup("Your account is not approved. Please wait for admin approval.");
+                    }
+
                     let token = loginResult.token;
                     localStorage.setItem('token', token);
                     localStorage.setItem('name', loginResult.user.name);
@@ -263,6 +267,26 @@
         function togglePassword() {
             let passwordField = document.getElementById("password");
             passwordField.type = passwordField.type === "password" ? "text" : "password";
+        }
+
+        function showPopup(message) {
+            let popup = document.createElement("div");
+            popup.textContent = message;
+            popup.style.position = "fixed";
+            popup.style.top = "50%";
+            popup.style.left = "50%";
+            popup.style.transform = "translate(-50%, -50%)";
+            popup.style.padding = "20px";
+            popup.style.backgroundColor = "#ffdddd";
+            popup.style.color = "#900";
+            popup.style.border = "1px solid #900";
+            popup.style.borderRadius = "5px";
+            popup.style.zIndex = "1000";
+            document.body.appendChild(popup);
+
+            setTimeout(() => {
+                popup.remove();
+            }, 3000); // Auto-hide after 3 seconds
         }
     </script>
 </body>
