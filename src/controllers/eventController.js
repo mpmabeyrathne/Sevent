@@ -83,6 +83,8 @@ exports.approveRejectEventRequest = async (req, res) => {
     const { requestId } = req.params;
     const { action } = req.body;
 
+    console.log({ requestId, action });
+
     if (action !== 'approve' && action !== 'reject') {
       return res
         .status(400)
@@ -90,36 +92,58 @@ exports.approveRejectEventRequest = async (req, res) => {
     }
 
     const eventRequest = await EventRequest.findById(requestId);
+    console.log(eventRequest);
 
     if (!eventRequest) {
       return res.status(404).json({ message: 'Event request not found' });
     }
 
     const newStatus = action === 'approve' ? 'approved' : 'rejected';
+    console.log('New status:', newStatus);
 
     const updatedEventRequest = await EventRequest.updateStatus(
       requestId,
       newStatus,
     );
+    console.log(updatedEventRequest);
 
-    const eventDteatail = await Event.getEventById(eventRequest.event_id);
+    const eventDetail = await Event.getEventById(eventRequest.event_id);
+    console.log(eventDetail);
 
     if (newStatus === 'approved') {
+      const approvedEventRequests = await EventRequest.getApprovedEvents();
+      console.log(approvedEventRequests);
+      
+      const approvedEvents = [];
+      for (let request of approvedEventRequests) {
+        const event = await EventRequest.getEventDetailsByRequest(request.event_id);
+        if (event) {
+          approvedEvents.push(event);
+        }
+      }
+      console.log(approvedEvents);
+
       const io = getIo();
-      io.emit('newApprovedEventNotification', {
-        message: 'A new event has been created!',
-        eventTitle: eventDteatail.title,
-        event: eventDteatail,
-      });
+      const socketPayload = {
+        message: 'Event approved and list updated',
+        latestApprovedEvent: {
+          eventTitle: eventDetail.title,
+          event: eventDetail
+        },
+        allApprovedEvents: approvedEvents
+      };
+      console.log(socketPayload);
+      
+      io.emit('approvedEventsUpdate', socketPayload);
 
       res.status(200).json({
         message: 'Event request processed successfully',
-        eventRequest: updatedEventRequest,
+        eventRequest: updatedEventRequest
       });
     } else {
       res.status(200).json({
         message: 'Event request rejected successfully',
-        eventRequest: updatedEventRequest,
+        eventRequest: updatedEventRequest
       });
     }
   } catch (error) {
