@@ -839,7 +839,7 @@ document
     formData.append('title', title);
     formData.append('description', description);
     formData.append('date', date.split('T')[0]);
-    formData.append('location', 'New York');
+    formData.append('location', 'Horizon');
     formData.append('totalTickets', availableTickets);
     formData.append('availableTickets', availableTickets);
     formData.append('categoryId', categoryId);

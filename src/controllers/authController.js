@@ -11,7 +11,9 @@ exports.register = async (req, res) => {
 
     const existingUser = await User.findByEmail(email);
     if (existingUser)
-      return res.status(400).json({ message: 'Email already in use' });
+      return res
+        .status(400)
+        .json({ message: 'Email already in use', status: false });
 
     let imageName = null;
     if (req.file) {
@@ -33,7 +35,12 @@ exports.register = async (req, res) => {
 
     res
       .status(201)
-      .json({ message: 'User registered successfully', user: newUser, token });
+      .json({
+        message: 'User registered successfully',
+        user: newUser,
+        token,
+        status: true,
+      });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
@@ -159,5 +166,40 @@ exports.updateUser = async (req, res) => {
   } catch (error) {
     console.error('Error updating user:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.updateUserRole = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!role || (role !== 'admin' && role !== 'student')) {
+      return res.status(400).json({
+        message: 'Invalid role. Role must be either "admin" or "student"',
+        status: false,
+      });
+    }
+
+    const updatedUser = await User.updateUserRole(id, role);
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: 'User not found',
+        status: false,
+      });
+    }
+
+    res.json({
+      message: `User role updated to ${role} successfully`,
+      user: updatedUser,
+      status: true,
+    });
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    res.status(500).json({
+      message: 'Internal server error',
+      status: false,
+    });
   }
 };
