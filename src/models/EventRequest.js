@@ -33,7 +33,7 @@ const EventRequest = {
   async getApprovedEvents() {
     const query = `
       SELECT * FROM event_requests 
-      WHERE status = 'approved';
+      WHERE status = 'approved' ORDER BY id DESC;
     `;
     const result = await pool.query(query);
     return result.rows;

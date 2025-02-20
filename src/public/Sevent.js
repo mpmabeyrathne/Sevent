@@ -1057,6 +1057,12 @@ socket.on('newApprovedEventNotification', (data) => {
   displayMessage(`A new event has been announced.`, data.event.id);
 });
 
+socket.on('approvedEventsUpdate', (data) => {
+
+  window.globalEvents = data.allApprovedEvents;
+
+  renderEvents();
+});
 // Toggle notification panel
 document.getElementById('notification').addEventListener('click', function (e) {
   const notificationsPanel = document.getElementById('notifications');

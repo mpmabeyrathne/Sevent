@@ -49,7 +49,7 @@ const Event = {
       er.status AS request_status  -- Fetch status from event_requests
     FROM events e
     LEFT JOIN event_requests er ON e.id = er.event_id
-    ORDER BY e.created_at DESC
+    ORDER BY e.id DESC
   `;
 
     try {
@@ -62,7 +62,7 @@ const Event = {
   },
 
   async getApprovedEvents() {
-    const query = `SELECT * FROM event_requests WHERE status = 'approved' ORDER BY created_at DESC`;
+    const query = `SELECT * FROM event_requests WHERE status = 'approved' ORDER BY id DESC`;
     const result = await pool.query(query);
     return result.rows;
   },
@@ -93,7 +93,7 @@ const Event = {
         INNER JOIN event_requests er ON e.id = er.event_id
         INNER JOIN users u ON e.created_by = u.id 
         WHERE er.status = 'approved' AND e.category_id = $1
-        ORDER BY e.created_at DESC
+        ORDER BY e.id DESC
     `;
 
     try {
