@@ -449,42 +449,6 @@ main .container .left .profile {
   pad: 1rem 0;
 }
 
-/*---------notification pop up---------*/
-/* .left .notification-pop-up {
-  position: absolute;
-  top: 0;
-  left: 110%;
-  width: 30rem;
-  background: var(--color-white);
-  border-radius: var(--card-border-radius);
-  padding: var(--card-padding);
-  box-shadow: 0 0 2rem hsl(var(--color-primary), 75%, 60% 25%);
-  z-index: 8;
-  display: none;
-}
-
-.left .notification-pop-up::before {
-  content: '';
-  width: 1.2rem;
-  height: 1.2rem;
-  display: block;
-  background: var(--color-white);
-  position: absolute;
-  left: -0.6rem;
-  transform: rotate(45deg);
-}
-
-.left .notification-pop-up > div {
-  display: flex;
-  align-items: start;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.left .notification-pop-up small {
-  display: block;
-} */
-
 /*Create Post*/
 .modal-post {
   width: 50%;
@@ -1367,26 +1331,180 @@ main .container .right {
   cursor: not-allowed;
 }
 
-/* Purchase Modal Styles */
+/* Base styling for the modal */
 .purchase-modal {
-  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
   z-index: 1000;
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
 }
 
 .purchase-modal-content {
-  position: relative;
-  background: var(--color-white);
-  margin: 15% auto;
-  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 90%;
-  max-width: 500px;
-  border-radius: var(--card-border-radius);
+  max-width: 450px;
+  padding: 30px;
+  position: relative;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header styling */
+.purchase-modal-content h2 {
+  color: #2c3e50;
+  margin: 0 0 25px 0;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
+}
+
+/* Ticket details section */
+.ticket-details {
+  margin-bottom: 25px;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.ticket-details p {
+  margin: 8px 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.ticket-details span {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Quantity selector styling */
+.ticket-quantity {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.ticket-quantity label {
+  margin-right: 15px;
+  font-size: 16px;
+  color: #555;
+  flex: 0 0 80px;
+}
+
+.ticket-quantity input {
+  flex: 1;
+  height: 45px;
+  padding: 0 15px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.ticket-quantity input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.ticket-quantity input::-webkit-inner-spin-button,
+.ticket-quantity input::-webkit-outer-spin-button {
+  opacity: 1;
+  height: 40px;
+}
+
+/* Total price styling */
+.total {
+  background-color: #f2f7fd;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  text-align: right;
+}
+
+.total p {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.total span {
+  font-weight: 700;
+  font-size: 20px;
+  color: #2980b9;
+}
+
+/* Button styling */
+.btn-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background-color: #f1f2f6;
+  color: #636e72;
+}
+
+.btn-cancel:hover {
+  background-color: #dfe4ea;
+}
+
+.btn-confirm {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-confirm:hover {
+  background-color: var(--color-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .purchase-modal-content {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .btn-container {
+    flex-direction: column;
+  }
+
+  .purchase-modal-content h2 {
+    font-size: 20px;
+  }
 }
 
 /* Ticket Section Styles */
@@ -1891,10 +2009,6 @@ main .container .right {
 .save-btn-custom:hover {
   background-color: hsl(252, 100%, 70%);
 }
-
-
-
-
 
 /* Notification Styles */
 #notification {
