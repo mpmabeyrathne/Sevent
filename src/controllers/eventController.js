@@ -3,6 +3,7 @@ const EventRequest = require('../models/EventRequest');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const fs = require('fs');
+const { getIo } = require('../services/socketService');
 
 exports.createEvent = async (req, res) => {
   try {
@@ -15,24 +16,19 @@ exports.createEvent = async (req, res) => {
       availableTickets,
       categoryId,
     } = req.body;
-    const userId = req.user.id; // Extract user ID from the JWT token
+    const userId = req.user.id;
 
-    // Check if request contains a file (image)
     let imageName = null;
     if (req.file) {
-      // Define image storage path
       const uploadDir = path.join(__dirname, '../uploads/events');
 
-      // Ensure the uploads folder exists
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
 
-      // Save image filename
       imageName = req.file.filename;
     }
 
-    // Create a new event with image
     const newEvent = await Event.createEvent(
       title,
       description,
@@ -42,17 +38,23 @@ exports.createEvent = async (req, res) => {
       availableTickets,
       categoryId,
       userId,
-      imageName, // Pass the uploaded image filename
+      imageName,
     );
 
-    console.log(newEvent.id);
     const newEventRequest = await EventRequest.createEventRequest(
       userId,
       title,
       description,
       'pending',
-      newEvent.id, // Set status to 'pending' initially
+      newEvent.id,
     );
+
+    const io = getIo();
+    io.emit('newEventNotification', {
+      message: 'A new event has been announced!',
+      eventTitle: title,
+      event: newEvent,
+    });
 
     res.status(201).json({
       message: 'Event created and event request submitted successfully',
@@ -67,7 +69,6 @@ exports.createEvent = async (req, res) => {
 
 exports.getAllEvents = async (req, res) => {
   try {
-    // Fetch events from the database
     const events = await Event.getAllEvents();
 
     res.status(200).json({ events });
@@ -82,31 +83,36 @@ exports.approveRejectEventRequest = async (req, res) => {
     const { requestId } = req.params;
     const { action } = req.body;
 
-    // Check if the action is valid
     if (action !== 'approve' && action !== 'reject') {
       return res
         .status(400)
         .json({ message: 'Invalid action. Must be "approve" or "reject".' });
     }
 
-    // Fetch the event request from the database
     const eventRequest = await EventRequest.findById(requestId);
 
     if (!eventRequest) {
       return res.status(404).json({ message: 'Event request not found' });
     }
 
-    // Update the status of the event request based on the action
     const newStatus = action === 'approve' ? 'approved' : 'rejected';
 
-    // Update the event request status
     const updatedEventRequest = await EventRequest.updateStatus(
       requestId,
       newStatus,
     );
 
-    // If approved, create the event
+    const eventDteatail = await Event.getEventById(eventRequest.event_id);
+
+    console.log(eventRequest);
     if (newStatus === 'approved') {
+      const io = getIo();
+      io.emit('newApprovedEventNotification', {
+        message: 'A new event has been created!',
+        eventTitle: eventDteatail.title,
+        event: eventDteatail,
+      });
+
       res.status(200).json({
         message: 'Event request processed successfully',
         eventRequest: updatedEventRequest,
@@ -155,6 +161,30 @@ exports.getApprovedEvents = async (req, res) => {
     res.status(200).json({ events });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: 'Error fetching approved events' });
+  }
+};
+
+exports.getEventsByCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params; // Get categoryId from URL parameters
+
+    if (!categoryId) {
+      return res.status(400).json({ message: 'Category ID is required' });
+    }
+
+    // Fetch approved events filtered by category
+    const events = await Event.getApprovedEventsByCategory(categoryId);
+
+    if (!events || events.length === 0) {
+      return res
+        .status(404)
+        .json({ message: 'No approved events found for this category' });
+    }
+
+    res.status(200).json({ events });
+  } catch (error) {
+    console.error('Error fetching approved events by category:', error);
     res.status(500).json({ message: 'Error fetching approved events' });
   }
 };

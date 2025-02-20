@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campur Event Management - Register</title>
+    <style>
+        :root {
+            --primary-color-hue: 252;
+            --dark-color-lightness: 17%;
+            --light-color-lightness: 95%;
+            --white-color-lightness: 100%;
+            --color-dark: hsl(252, 30%, var(--dark-color-lightness));
+            --color-white: hsl(252, 30%, var(--white-color-lightness));
+            --color-light: hsl(252, 30%, var(--light-color-lightness));
+            --color-gray: hsl(252, 15%, 65%);
+            --color-primary: hsl(var(--primary-color-hue), 75%, 60%);
+            --color-secondary: hsl(252, 100%, 90%);
+            --color-success: hsl(120, 95%, 65%);
+            --color-warning: hsl(0, 95%, 65%);
+            --color-black: hsl(252, 30%, 10%);
+            --border-radius: 2rem;
+            --card-border-radius: 1rem;
+            --btn-padding: 0.6rem 2rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--color-dark);
+            background-image:
+                radial-gradient(at 40% 20%, hsla(var(--primary-color-hue), 100%, 30%, 0.3) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(var(--primary-color-hue), 100%, 40%, 0.3) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(var(--primary-color-hue), 100%, 30%, 0.3) 0px, transparent 50%);
+        }
+
+        .register-container {
+            background: var(--color-black);
+            padding: 2.5rem;
+            border-radius: var(--card-border-radius);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            margin: 1rem;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .register-header h2 {
+            color: var(--color-white);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .register-header p {
+            color: var(--color-gray);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--color-gray);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group input:not([type="file"]) {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--color-dark);
+            background: var(--color-dark);
+            border-radius: 0.7rem;
+            color: var(--color-white);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 4px hsla(var(--primary-color-hue), 75%, 60%, 0.1);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--color-gray);
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: var(--color-primary);
+        }
+
+        .profile-upload {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .profile-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--color-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--color-primary);
+        }
+
+        .profile-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-btn {
+            background: var(--color-dark);
+            color: var(--color-gray);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .upload-btn:hover {
+            background: var(--color-primary);
+            color: var(--color-white);
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: var(--btn-padding);
+            border: none;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .register-btn:hover {
+            background-color: hsl(var(--primary-color-hue), 75%, 55%);
+            transform: translateY(-1px);
+        }
+
+        .register-btn:active {
+            transform: translateY(0);
+        }
+
+        .error {
+            color: var(--color-warning);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--color-gray);
+            font-size: 0.9rem;
+        }
+
+        .login-link a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .error.visible {
+            display: block;
+            animation: shake 0.5s ease-in-out;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h2>Create Account</h2>
+            <p>Join us to manage and discover amazing events</p>
+        </div>
+        <form id="registerForm">
+            <div class="profile-upload">
+                <div class="profile-preview">
+                    <img id="profilePreview" src="/api/placeholder/80/80" alt="Profile preview">
+                </div>
+                <input type="file" id="profilePic" accept="image/*" style="display: none;">
+                <label for="profilePic" class="upload-btn">Upload Photo</label>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" placeholder="Enter your full name" required>
+                <p class="error" id="nameError">Name is required</p>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+                <p class="error" id="emailError">Valid email is required</p>
+            </div>
+
+            <div class="form-group password-container">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Create a password" required>
+                <button type="button" class="toggle-password" onclick="togglePassword()">
+                    👁️
+                </button>
+                <p class="error" id="passwordError">Password is required</p>
+            </div>
+
+            <button type="submit" class="register-btn">Create Account</button>
+
+            <div class="login-link">
+                Already have an account? <a href="login.html">Sign In</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Profile picture preview
+        document.getElementById('profilePic').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('profilePreview').src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Password toggle
+        function togglePassword() {
+            let passwordField = document.getElementById("password");
+            passwordField.type = passwordField.type === "password" ? "text" : "password";
+        }
+
+        // Form submission
+        document.getElementById("registerForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            let name = document.getElementById("name").value.trim();
+            let email = document.getElementById("email").value.trim();
+            let password = document.getElementById("password").value.trim();
+            let profilePic = document.getElementById("profilePic").files[0];
+            console.log(profilePic)
+
+            let nameError = document.getElementById("nameError");
+            let emailError = document.getElementById("emailError");
+            let passwordError = document.getElementById("passwordError");
+
+            // Reset errors
+            nameError.classList.toggle('visible', !name);
+            emailError.classList.toggle('visible', !email);
+            passwordError.classList.toggle('visible', !password);
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (email && !emailRegex.test(email)) {
+                emailError.textContent = "Please enter a valid email address";
+                emailError.classList.add('visible');
+                return;
+            }
+
+            console.log(name, email, password)
+            if (name && email && password) {
+                try {
+                    const formData = new FormData();
+                    formData.append('name', name);
+                    formData.append('email', email);
+                    formData.append('password', password);
+                    if (profilePic) {
+                        formData.append('image', profilePic);
+                    }
+
+                    console.log(formData)
+
+                    let registerResponse = await fetch("http://localhost:5000/api/auth/register", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    let registerResult = await registerResponse.json();
+
+                    if (!registerResponse.ok) {
+                        return alert(registerResult.message);
+                    }
+
+                    if (registerResult.status) {
+                        window.location.href = "login.html";
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

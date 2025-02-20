@@ -158,11 +158,12 @@
         // Function to update event status
         async function updateEventStatus(eventId, action) {
             try {
+                const token = localStorage.getItem('token');
                 const response = await fetch(`${API_ENDPOINTS.eventApproval}/${eventId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huMUBleGFtcGxlLmNvbSIsImlhdCI6MTczOTY5ODAyMCwiZXhwIjoxNzM5NzAxNjIwfQ.4CAkoUgjX74Ab0q8q7X05Gs_1AQlSf1Vz558XJxW70o'
+                        Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
                         action: action

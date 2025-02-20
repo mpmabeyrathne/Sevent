@@ -1,7 +1,6 @@
 const pool = require('../config/db');
 
 const Event = {
-  // Create a new event with an optional image
   async createEvent(
     title,
     description,
@@ -11,7 +10,7 @@ const Event = {
     availableTickets,
     categoryId,
     createdBy,
-    imageName, // New parameter for storing image filename
+    imageName,
   ) {
     const query = `
       INSERT INTO events (title, description, date, location, total_tickets, available_tickets, category_id, created_by, image) 
@@ -27,13 +26,12 @@ const Event = {
       availableTickets,
       categoryId,
       createdBy,
-      imageName, // Saving image filename in DB
+      imageName,
     ];
     const result = await pool.query(query, values);
     return result.rows[0];
   },
 
-  // Get all events, sorted by newest first
   async getAllEvents() {
     const query = `
     SELECT 
@@ -62,19 +60,47 @@ const Event = {
       throw error;
     }
   },
-  // Get all approved events
+
   async getApprovedEvents() {
     const query = `SELECT * FROM event_requests WHERE status = 'approved' ORDER BY created_at DESC`;
     const result = await pool.query(query);
     return result.rows;
   },
 
-  // Get a single event by ID
   async getEventById(eventId) {
     const query = 'SELECT * FROM events WHERE id = $1';
     const result = await pool.query(query, [eventId]);
     return result.rows[0];
   },
+
+  async getApprovedEventsByCategory(categoryId) {
+    const query = `
+        SELECT 
+            e.id, 
+            e.title, 
+            e.description, 
+            e.date, 
+            e.location, 
+            e.total_tickets, 
+            e.available_tickets, 
+            e.category_id, 
+            e.created_by, 
+            e.created_at,
+            e.image
+        FROM events e
+        INNER JOIN event_requests er ON e.id = er.event_id
+        WHERE er.status = 'approved' AND e.category_id = $1
+        ORDER BY e.created_at DESC
+    `;
+
+    try {
+        const result = await pool.query(query, [categoryId]);
+        return result.rows;
+    } catch (error) {
+        console.error('Error fetching events by category:', error);
+        throw error;
+    }
+},
 };
 
 module.exports = Event;
