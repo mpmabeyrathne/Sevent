@@ -42,10 +42,14 @@ const EventRequest = {
   // Method to get event details based on event request
   async getEventDetailsByRequest(requestId) {
     const query = `
-      SELECT events.* 
-      FROM events
-      JOIN event_requests ON events.id = event_requests.event_id
-      WHERE event_requests.event_id = $1;
+      SELECT 
+  events.*, 
+  users.name AS creator_name, 
+  users.p_image AS creator_image 
+FROM events
+JOIN event_requests ON events.id = event_requests.event_id
+JOIN users ON events.created_by = users.id
+WHERE event_requests.event_id = $1;
     `;
     const result = await pool.query(query, [requestId]);
     return result.rows[0];

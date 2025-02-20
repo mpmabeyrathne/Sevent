@@ -2,13 +2,13 @@ const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 
 const User = {
-  async createUser(name, email, password) {
+  async createUser(name, email, password, p_image) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const query = `
-      INSERT INTO users (name, email, password) 
-      VALUES ($1, $2, $3) RETURNING id, name, email;
+      INSERT INTO users (name, email, password, p_image) 
+      VALUES ($1, $2, $3, $4) RETURNING id, name, email, p_image;
     `;
-    const values = [name, email, hashedPassword];
+    const values = [name, email, hashedPassword, p_image];
     const result = await pool.query(query, values);
     return result.rows[0];
   },
@@ -42,6 +42,30 @@ const User = {
       console.error('Error fetching all users:', error);
       throw error;
     }
+  },
+
+  async updateUser(id, name, email, password, p_image) {
+    let hashedPassword = null;
+
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
+    const query = `
+    UPDATE users 
+    SET 
+      name = COALESCE($2, name), 
+      email = COALESCE($3, email), 
+      password = COALESCE($4, password), 
+      p_image = COALESCE($5, p_image) 
+    WHERE id = $1 
+    RETURNING id, name, email, p_image;
+  `;
+
+    const values = [id, name, email, hashedPassword, p_image];
+    const result = await pool.query(query, values);
+
+    return result.rows[0];
   },
 };
 

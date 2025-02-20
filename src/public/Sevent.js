@@ -194,8 +194,6 @@ Background_color2.addEventListener('click', () => {
 });
 
 //Open event modal
-
-// Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   const eventModal = document.getElementById('eventModal');
   const createBtn = document.getElementById('create-event-btn');
@@ -267,7 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle form submission
   eventForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    // Add your form submission logic here
     const formData = new FormData(eventForm);
     console.log('Form submitted:', Object.fromEntries(formData));
     closeModal();
@@ -279,9 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Sample event data (this could come from your form submission)
 async function fetchAndTransformEvents() {
   const apiUrl = 'http://localhost:5000/api/events/approved';
-  const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huMUBleGFtcGxlLmNvbSIsImlhdCI6MTczOTY5ODAyMCwiZXhwIjoxNzM5NzAxNjIwfQ.4CAkoUgjX74Ab0q8q7X05Gs_1AQlSf1Vz558XJxW70o';
-
+  const token = localStorage.getItem('token');
   try {
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -297,12 +292,11 @@ async function fetchAndTransformEvents() {
 
     const data = await response.json();
 
-    // Transform the data
     const transformedEvents = data.events.map((event, index) => ({
       id: event.id,
       userName: event.created_by ? `User ${event.created_by}` : 'Anonymous',
       location: event.location || 'Unknown Location',
-      time: new Date(event.created_at).toLocaleString(), // Format time
+      time: new Date(event.created_at).toLocaleString(),
       description: event.description || 'No description available',
       image: event.image
         ? `/uploads/events/${event.image}`
@@ -311,8 +305,10 @@ async function fetchAndTransformEvents() {
       tickets: {
         total: event.total_tickets,
         sold: event.total_tickets - event.available_tickets,
-        price: 1500, // Default price (adjust if needed)
+        price: 1500,
       },
+      creator_name: event.creator_name,
+      creator_image: event.creator_image,
     }));
 
     console.log(transformedEvents);
@@ -322,25 +318,24 @@ async function fetchAndTransformEvents() {
   }
 }
 
-// Call the function
 events = fetchAndTransformEvents();
 
 // Function to create a single event feed
 function createEventFeed(event) {
-  // Calculate available tickets
   const availableTickets = event.tickets.total - event.tickets.sold;
   const ticketAvailabilityClass =
     availableTickets > 0 ? 'available' : 'sold-out';
-
   return `
         <div class="memo-feed">
             <div class="head">
                 <div class="user">
                     <div class="profile-pic">
-                        <img src="${event.profilePic}" alt="" />
+                        <img src="uploads/p_image/${
+                          event.creator_image
+                        }" alt="" />
                     </div>
                     <div class="info">
-                        <h3>${event.userName}</h3>
+                        <h3>${event.creator_name}</h3>
                         <small>${event.location}, ${event.time}</small>
                     </div>
                 </div>
@@ -455,7 +450,6 @@ function createCommentElement(comment) {
 // Function to render all events
 function renderEvents() {
   const memoFeedsContainer = document.querySelector('.memo-feeds');
-  console.log(memoFeedsContainer);
   memoFeedsContainer.innerHTML = events
     .map((event) => createEventFeed(event))
     .join('');
@@ -463,21 +457,18 @@ function renderEvents() {
 
 // Handle modal toggles and actions
 document.addEventListener('DOMContentLoaded', async () => {
-  events = await fetchAndTransformEvents(); // Wait for events to load
-  renderEvents(); // Render after data is fetched
+  events = await fetchAndTransformEvents();
+  renderEvents();
 
-  // Handle ellipsis click (show/hide modal)
   document.querySelector('.memo-feeds').addEventListener('click', (e) => {
     if (e.target.classList.contains('uil-ellipsis-v')) {
       const eventId = e.target.dataset.eventId;
       const modal = document.getElementById(`modal-${eventId}`);
 
-      // Close all other open modals first
       document.querySelectorAll('.modal').forEach((m) => {
         if (m !== modal) m.style.display = 'none';
       });
 
-      // Toggle current modal
       modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
     }
   });
@@ -489,7 +480,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const eventId = e.target.dataset.eventId;
 
       if (action === 'delete') {
-        // Remove event from array
         events = events.filter((event) => event.id !== parseInt(eventId));
         renderEvents();
       } else if (action === 'update') {
@@ -512,41 +502,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 function addNewEvent(eventData) {
   const newEvent = {
     id: events.length + 1,
-    userName: 'Current User', // Get from your user system
+    userName: 'Current User',
     location: 'Sri Lanka, Kegalle',
     time: 'just now',
     description: eventData.description,
-    image: eventData.image, // You'll need to handle image upload
-    profilePic: '/assets/images/profile-00.jpg', // Get from user profile
+    image: eventData.image,
+    profilePic: '/assets/images/profile-00.jpg',
   };
 
-  events.unshift(newEvent); // Add to beginning of array
-  renderEvents(); // Re-render all events
+  events.unshift(newEvent);
+  renderEvents();
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  var modalButton = document.getElementById('ticket-purches-modal');
-  var purchaseModal = document.getElementById('purchaseModal');
-  var cancelButton = document.getElementById('cancelPurchaseBtn');
+// document.addEventListener('DOMContentLoaded', function () {
+//   var modalButton = document.getElementById('ticket-purches-modal');
+//   var purchaseModal = document.getElementById('purchaseModal');
+//   var cancelButton = document.getElementById('cancelPurchaseBtn');
 
-  // Open modal
-  modalButton.addEventListener('click', function () {
-    purchaseModal.style.display = 'block';
-    console.log(cancelButton);
-  });
+//   // Open modal
+//   modalButton.addEventListener('click', function () {
+//     purchaseModal.style.display = 'block';
+//   });
 
-  // Close modal when clicking the cancel button
-  cancelButton.addEventListener('click', function () {
-    purchaseModal.style.display = 'none';
-  });
-});
-
-// Add this JavaScript code to handle comment functionality
+//   // Close modal when clicking the cancel button
+//   cancelButton.addEventListener('click', function () {
+//     purchaseModal.style.display = 'none';
+//   });
+// });
 
 document.addEventListener('DOMContentLoaded', function () {
   // Handle comment submission
   document.addEventListener('click', function (e) {
-    console.log(e.target.dataset.eventId, 'sssssssssssss');
     if (e.target.matches('.comment-submit')) {
       const eventId = e.target.dataset.eventId;
       const inputElement = document.querySelector(
@@ -557,8 +543,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (commentText) {
         const comment = {
           id: Date.now(),
-          userName: 'Current User', // Replace with actual user name
-          profilePic: 'path/to/profile-pic.jpg', // Replace with actual profile pic
+          userName: 'Current User',
+          profilePic: 'path/to/profile-pic.jpg',
           text: commentText,
           timestamp: new Date().toLocaleString(),
           likes: 0,
@@ -601,11 +587,8 @@ document
   .addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    // Bearer token
-    const token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huMUBleGFtcGxlLmNvbSIsImlhdCI6MTczOTY1MjQyNSwiZXhwIjoxNzM5NjU2MDI1fQ.nc1qdkHsa-bYeF0oDOWde284bxUDps88ndEuE1rWqtQ';
+    const token = localStorage.getItem('token');
 
-    // Get form values
     const title = document.getElementById('eventTitle').value;
     const description = document.getElementById('eventDescription').value;
     const date = document.getElementById('eventDate').value;
@@ -613,11 +596,8 @@ document
     const imageFile = document.getElementById('eventImage').files[0];
     const availableTickets = document.getElementById('availableTickets').value;
 
-    console.log(availableTickets), 'availableTickets';
-    // Create FormData object for file upload
     const formData = new FormData();
 
-    // Append form data fields separately
     formData.append('title', title);
     formData.append('description', description);
     formData.append('date', date.split('T')[0]);
@@ -625,10 +605,9 @@ document
     formData.append('totalTickets', availableTickets);
     formData.append('availableTickets', availableTickets);
     formData.append('categoryId', categoryId);
-    formData.append('createdAt', new Date().toISOString()); // Corrected field name
-    formData.append('payload', ''); // Keeping this for consistency, adjust if needed
+    formData.append('createdAt', new Date().toISOString());
+    formData.append('payload', '');
 
-    // Append the image file
     if (imageFile) {
       formData.append('image', imageFile);
     }
@@ -649,12 +628,10 @@ document
       const data = await response.json();
       console.log('Success:', data);
 
-      // Clear form and close modal
       document.getElementById('eventForm').reset();
       document.getElementById('eventModal').style.display = 'none';
       document.getElementById('selectedFileName').textContent = '';
 
-      // Show success message
       alert('Event created successfully!');
       window.location.reload();
     } catch (error) {
@@ -663,7 +640,6 @@ document
     }
   });
 
-// Handle image upload UI
 document.getElementById('imageUploadArea').addEventListener('click', () => {
   document.getElementById('eventImage').click();
 });
@@ -688,3 +664,331 @@ document.querySelector('.close-btn').addEventListener('click', () => {
   document.getElementById('selectedFileName').textContent = '';
   document.getElementById('eventModal').style.display = 'none';
 });
+
+// Function to open the modal and set user values
+function openEditModal(user) {
+  const modal = document.getElementById('editUserModal');
+  modal.style.display = 'flex';
+
+  // Set form values
+  document.getElementById('editUserId').value = user.id;
+  document.getElementById('editName').value = user.name;
+  document.getElementById('editEmail').value = user.email;
+  document.getElementById('editPassword').value = '';
+
+  // Set profile image if exists
+  const imagePreview = document.getElementById('profileImagePreview');
+  if (user.profile_image) {
+    imagePreview.src = `/uploads/profiles/${user.profile_image}`;
+  } else {
+    imagePreview.src = '/api/placeholder/150/150';
+  }
+
+  modal.classList.add('active');
+}
+
+// Function to close the modal
+function closeModal() {
+  const modal = document.getElementById('editUserModal');
+  modal.style.display = 'none';
+}
+
+// Function to preview the selected image
+function handleImagePreview(event) {
+  const imagePreview = document.getElementById('profileImagePreview');
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      imagePreview.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// Function to remove the profile image
+function removeProfileImage() {
+  const imagePreview = document.getElementById('profileImagePreview');
+  imagePreview.src = '/api/placeholder/150/150';
+}
+
+const username = localStorage.getItem('name');
+const profileImage = localStorage.getItem('p_image');
+
+if (username) {
+  document.getElementById('LOGIN_USERNAME').textContent = username;
+}
+
+if (profileImage) {
+  document.getElementById(
+    'profileImage',
+  ).src = `/uploads/p_image/${profileImage}`;
+}
+
+async function saveChanges() {
+  const userId = localStorage.getItem('user_id');
+  const name = document.getElementById('editName').value.trim();
+  const email = document.getElementById('editEmail').value.trim();
+  const password = document.getElementById('editPassword').value.trim();
+  const profileImage = document.getElementById('profileImageEdit').files[0];
+
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('email', email);
+  if (password) {
+    formData.append('password', password);
+  }
+  if (profileImage) {
+    formData.append('image', profileImage);
+  }
+
+  const token = localStorage.getItem('token');
+
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/auth/user/${userId}`,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      },
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem('name', data.user.name);
+      localStorage.setItem('name', data.user.name);
+      localStorage.setItem('email', data.user.email);
+      localStorage.setItem('p_image', data.user.p_image);
+      alert('User updated successfully!');
+      closeModal();
+      window.location.reload();
+      // Optionally reload user data
+    } else {
+      alert(data.message || 'Failed to update user');
+    }
+  } catch (error) {
+    console.error('Error updating user:', error);
+    alert('Something went wrong');
+  }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++ webscoket ++++++++++++++++++++++
+
+// Client-side notification handling (your frontend JS file)
+const socket = io('http://localhost:5000'); // Connect to the server
+
+// Track the notification count
+let notificationCount = 0;
+
+// Function to update the notification count
+const updateNotificationCount = (count) => {
+  const notificationCountElement = document.querySelector('.notifi-count');
+  if (notificationCountElement) {
+    notificationCountElement.textContent = count > 0 ? `${count}` : '';
+    if (count > 0) {
+      notificationCountElement.style.display = 'flex';
+    } else {
+      notificationCountElement.style.display = 'none';
+    }
+  }
+};
+
+// Function to display notifications
+
+// Listen for new event notifications
+socket.on('newEventNotification', (data) => {
+  notificationCount++;
+
+  const userRole = localStorage.getItem('role');
+  if (userRole === 'admin') {
+    updateNotificationCount(notificationCount);
+    displayMessage(
+      `A new event has been announced. please approve it!`,
+      data.event.id,
+    );
+  }
+});
+
+socket.on('newApprovedEventNotification', (data) => {
+  notificationCount++;
+  updateNotificationCount(notificationCount);
+  displayMessage(`A new event has been announced.`, data.event.id);
+});
+
+// Toggle notification panel
+document.getElementById('notification').addEventListener('click', function (e) {
+  const notificationsPanel = document.getElementById('notifications');
+  if (notificationsPanel) {
+    notificationsPanel.classList.toggle('show-notifications');
+
+    // Only reset notification count if the panel is being opened
+    if (notificationsPanel.classList.contains('show-notifications')) {
+      notificationCount = 0;
+      updateNotificationCount(notificationCount);
+    }
+
+    // Prevent the click from propagating to the document
+    e.stopPropagation();
+  }
+});
+
+// Close notification panel when clicking outside
+document.addEventListener('click', function (e) {
+  const notificationsPanel = document.getElementById('notifications');
+  const notificationButton = document.getElementById('notification');
+
+  if (
+    notificationsPanel &&
+    notificationsPanel.classList.contains('show-notifications') &&
+    !notificationButton.contains(e.target) &&
+    !notificationsPanel.contains(e.target)
+  ) {
+    notificationsPanel.classList.remove('show-notifications');
+  }
+});
+
+// Add these additional functions to your client-side code
+
+// Function to initialize the notification panel
+const initializeNotifications = () => {
+  // Add clear all functionality
+  const clearAllButton = document.querySelector('.clear-all');
+  if (clearAllButton) {
+    clearAllButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearAllNotifications();
+    });
+  }
+
+  // Check if there are any stored notifications
+  loadNotificationsFromStorage();
+};
+
+// Function to clear all notifications
+const clearAllNotifications = () => {
+  const notificationList = document.getElementById('notification-list');
+  if (notificationList) {
+    // Remove all notifications except the "no notifications" message
+    while (notificationList.firstChild) {
+      notificationList.removeChild(notificationList.firstChild);
+    }
+
+    // Add the "no notifications" message back
+    const noNotificationsMessage = document.createElement('div');
+    noNotificationsMessage.classList.add('no-notifications');
+    noNotificationsMessage.textContent = 'No notifications yet';
+    notificationList.appendChild(noNotificationsMessage);
+
+    // Reset notification count
+    notificationCount = 0;
+    updateNotificationCount(notificationCount);
+
+    // Clear from local storage
+    localStorage.removeItem('notifications');
+  }
+};
+
+// Function to display notification with improved UI
+const displayMessage = (message, eventId) => {
+  const notificationList = document.getElementById('notification-list');
+  if (!notificationList) return;
+
+  // Remove "no notifications" message if present
+  const noNotificationsMessage =
+    notificationList.querySelector('.no-notifications');
+  if (noNotificationsMessage) {
+    notificationList.removeChild(noNotificationsMessage);
+  }
+
+  const notificationElement = document.createElement('div');
+  notificationElement.classList.add('notification-item');
+  notificationElement.dataset.eventId = eventId;
+
+  const timestamp = new Date().toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  const today = new Date().toLocaleDateString([], {
+    month: 'short',
+    day: 'numeric',
+  });
+
+  notificationElement.innerHTML = `
+    <div class="notification-content">
+      <div class="profile-pic">
+        <img src="/assets/images/profile-1.jpg" alt="User Profile" />
+      </div>
+      <div class="notification-body">
+        <b>System Notification</b>
+        <p>${message}</p>
+        <small class="text-muted">${today} at ${timestamp}</small>
+      </div>
+    </div>
+  `;
+
+  notificationList.prepend(notificationElement); // Add new notifications at the top
+
+  // Save notifications to local storage
+  saveNotificationsToStorage();
+};
+
+// Function to save notifications to local storage
+const saveNotificationsToStorage = () => {
+  const notificationList = document.getElementById('notification-list');
+  if (!notificationList) return;
+
+  const notifications = [];
+  notificationList.querySelectorAll('.notification-item').forEach((item) => {
+    const message = item.querySelector('p').textContent;
+    const timestamp = item.querySelector('.text-muted').textContent;
+    const eventId = item.dataset.eventId;
+
+    notifications.push({ message, timestamp, eventId });
+  });
+
+  localStorage.setItem('notifications', JSON.stringify(notifications));
+};
+
+// Function to load notifications from local storage
+const loadNotificationsFromStorage = () => {
+  const storedNotifications = localStorage.getItem('notifications');
+
+  if (storedNotifications) {
+    const notifications = JSON.parse(storedNotifications);
+    const notificationList = document.getElementById('notification-list');
+
+    if (notificationList && notifications.length > 0) {
+      // Clear existing content
+      notificationList.innerHTML = '';
+
+      // Add stored notifications
+      notifications.forEach((notification) => {
+        const notificationElement = document.createElement('div');
+        notificationElement.classList.add('notification-item');
+        notificationElement.dataset.eventId = notification.eventId;
+
+        notificationElement.innerHTML = `
+          <div class="notification-content">
+            <div class="profile-pic">
+              <img src="/assets/images/profile-1.jpg" alt="User Profile" />
+            </div>
+            <div class="notification-body">
+              <b>System Notification</b>
+              <p>${notification.message}</p>
+              <small class="text-muted">${notification.timestamp}</small>
+            </div>
+          </div>
+        `;
+
+        notificationList.appendChild(notificationElement);
+      });
+    }
+  }
+};
+
+// Initialize notifications when document is ready
+document.addEventListener('DOMContentLoaded', initializeNotifications);

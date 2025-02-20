@@ -15,7 +15,7 @@ exports.verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach the decoded user data to the request object
+    req.user = decoded; 
     next();
   } catch (error) {
     console.error(error);
@@ -25,7 +25,6 @@ exports.verifyToken = (req, res, next) => {
 
 exports.verifyAdmin = async (req, res, next) => {
   try {
-    // Get email from the token
     const email = req.user.email;
 
     const result = await User.findByEmail(email);
@@ -34,7 +33,6 @@ exports.verifyAdmin = async (req, res, next) => {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    // Check if the user is an admin
     if (result.role === 'admin') {
       return next();
     }

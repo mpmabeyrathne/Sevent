@@ -14,6 +14,8 @@
 
     <!--------- STYLESHEET ------------->
     <link rel="stylesheet" href="/Sevent.css" />
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
 </head>
 
 <body>
@@ -29,10 +31,6 @@
             </div>
 
             <div class="user-section">
-                <a href="/cart" class="cart-icon">
-                    <i class="uil uil-shopping-cart"></i>
-                    <span class="cart-count">0</span>
-                </a>
 
                 <div class="profile-pic">
                     <img src="/assets/images/logo.jpg" alt="Profile" />
@@ -48,7 +46,7 @@
             <div class="left">
                 <a class="profile">
                     <div class="profile-pic">
-                        <img src="/assets/images/profile-00.jpg" alt="" />
+                        <img id="profileImage" src="/assets/images/profile-00.jpg" alt="Profile Picture" />
                     </div>
                     <div class="prifile-section">
                         <h4 id="LOGIN_USERNAME"></h4>
@@ -62,20 +60,18 @@
                         <h3>Home</h3>
                     </a>
                     <a class="leftside-item" id="notification">
-                        <span><i class="uil uil-bell"><small class="notifi-count">9+</small></i></span>
-
+                        <span><i class="uil uil-bell"><small class="notifi-count"></small></i></span>
                         <h3>Notification</h3>
 
                         <!----------- Notification pop up ------------>
-                        <div class="notification-pop-up">
-                            <div>
-                                <div class="profile-pic">
-                                    <img src="/assets/images/profile-1.jpg" alt="" />
-                                </div>
-                                <div class="notification-body">
-                                    <b> Navodya Asalage </b>invited to Friends Memo Group
-                                    <small class="text-muted">1 Hour ago</small>
-                                </div>
+                        <div id="notifications">
+                            <div class="notification-header">
+                                <h4>Notifications</h4>
+                                <span class="clear-all">Clear All</span>
+                            </div>
+                            <div id="notification-list">
+                                <!-- Notifications will be appended here -->
+                                <div class="no-notifications">No notifications yet</div>
                             </div>
                         </div>
                     </a>
@@ -86,7 +82,8 @@
                         <h3>Theme</h3>
                     </a>
 
-                    <a class="leftside-item" id="profile-edit">
+                    <a class="leftside-item" id="profile-edit"
+                        onclick="openEditModal({id: 1, name: 'John Doe', email: 'john.doe@example.com', profile_image: 'profile1.jpg'})">
                         <span><i class="uil uil-edit"></i></span>
                         <h3>Profile Edit</h3>
                     </a>
@@ -271,6 +268,61 @@
             </div>
         </div>
     </div>
+
+    <div id="editUserModal" class="user-edit-modal-custom">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom">
+                <h3>Edit User Profile</h3>
+                <button onclick="closeModal()" class="close-btn-custom">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="profile-image-container-custom">
+                <img id="profileImagePreview" src="/api/placeholder/150/150" alt="Profile"
+                    class="profile-image-preview-custom">
+                <div class="button-container-custom">
+                    <label class="change-photo-btn-custom">
+                        Change Photo
+                        <input type="file" id="profileImageEdit" accept="image/*" onchange="handleImagePreview(event)"
+                            class="hidden">
+                    </label>
+                    <button type="button" onclick="removeProfileImage()" class="remove-photo-btn-custom">Remove</button>
+                </div>
+            </div>
+
+            <!-- Name -->
+            <div class="input-group-custom">
+                <label for="editName">Name</label>
+                <input type="text" id="editName" required class="input-custom">
+            </div>
+
+            <!-- Email -->
+            <div class="input-group-custom">
+                <label for="editEmail">Email</label>
+                <input type="email" id="editEmail" required class="input-custom">
+            </div>
+
+            <!-- Password -->
+            <div class="input-group-custom">
+                <label for="editPassword">New Password (leave blank to keep current)</label>
+                <input type="password" id="editPassword" class="input-custom">
+            </div>
+
+            <!-- Submit Button -->
+            <div class="button-group-custom" style="margin-top: 10px;">
+                <button type="button" onclick="closeModal()" class="cancel-btn-custom">Cancel</button>
+                <button type="button" onclick="saveChanges()" class="save-btn-custom">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
     <script src="/Sevent.js"></script>
     <script src="/jquery-3.6.0.js"></script>
     <script>

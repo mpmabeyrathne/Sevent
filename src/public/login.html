@@ -4,44 +4,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Form</title>
+    <title>Campur Event Management - Login</title>
     <style>
+        :root {
+            --primary-color-hue: 252;
+            --dark-color-lightness: 17%;
+            --light-color-lightness: 95%;
+            --white-color-lightness: 100%;
+            --color-dark: hsl(252, 30%, var(--dark-color-lightness));
+            --color-white: hsl(252, 30%, var(--white-color-lightness));
+            --color-light: hsl(252, 30%, var(--light-color-lightness));
+            --color-gray: hsl(252, 15%, 65%);
+            --color-primary: hsl(var(--primary-color-hue), 75%, 60%);
+            --color-secondary: hsl(252, 100%, 90%);
+            --color-success: hsl(120, 95%, 65%);
+            --color-warning: hsl(0, 95%, 65%);
+            --color-black: hsl(252, 30%, 10%);
+            --border-radius: 2rem;
+            --card-border-radius: 1rem;
+            --btn-padding: 0.6rem 2rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
+            min-height: 100vh;
+            background-color: var(--color-dark);
+            background-image:
+                radial-gradient(at 40% 20%, hsla(var(--primary-color-hue), 100%, 30%, 0.3) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(var(--primary-color-hue), 100%, 40%, 0.3) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(var(--primary-color-hue), 100%, 30%, 0.3) 0px, transparent 50%);
         }
 
         .login-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            background: var(--color-black);
+            padding: 2.5rem;
+            border-radius: var(--card-border-radius);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            margin: 1rem;
         }
 
-        .login-container h2 {
+        .login-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h2 {
+            color: var(--color-white);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: var(--color-gray);
+            font-size: 0.9rem;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 1.5rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            color: var(--color-gray);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
         }
 
         .form-group input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--color-dark);
+            background: var(--color-dark);
+            border-radius: 0.7rem;
+            color: var(--color-white);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 4px hsla(var(--primary-color-hue), 75%, 60%, 0.1);
         }
 
         .password-container {
@@ -50,53 +104,117 @@
 
         .toggle-password {
             position: absolute;
-            right: 10px;
+            right: 1rem;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            font-size: 14px;
-            color: gray;
+            color: var(--color-gray);
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: var(--color-primary);
         }
 
         .login-btn {
             width: 100%;
-            padding: 10px;
+            padding: var(--btn-padding);
             border: none;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border-radius: var(--border-radius);
             cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
         .login-btn:hover {
-            background-color: #0056b3;
+            background-color: hsl(var(--primary-color-hue), 75%, 55%);
+            transform: translateY(-1px);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
         }
 
         .error {
-            color: red;
-            font-size: 12px;
+            color: var(--color-warning);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
             display: none;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--color-gray);
+            font-size: 0.9rem;
+        }
+
+        .register-link a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .error.visible {
+            display: block;
+            animation: shake 0.5s ease-in-out;
         }
     </style>
 </head>
 
 <body>
-
     <div class="login-container">
-        <h2>Login</h2>
+        <div class="login-header">
+            <h2>Welcome Back</h2>
+            <p>Please enter your credentials to continue</p>
+        </div>
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Enter username">
+                <input type="text" id="username" placeholder="Enter your username">
                 <p class="error" id="usernameError">Username is required</p>
             </div>
             <div class="form-group password-container">
                 <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Enter password">
-                <span class="toggle-password" onclick="togglePassword()">👁️</span>
+                <input type="password" id="password" placeholder="Enter your password">
+                <button type="button" class="toggle-password" onclick="togglePassword()">
+                    👁️
+                </button>
                 <p class="error" id="passwordError">Password is required</p>
             </div>
-            <button type="submit" class="login-btn">Login</button>
+            <button type="submit" class="login-btn">Sign In</button>
+
+            <div class="register-link">
+                Don't have an account? <a href="register.html">Sign Up</a>
+            </div>
         </form>
     </div>
 
@@ -109,12 +227,11 @@
             let usernameError = document.getElementById("usernameError");
             let passwordError = document.getElementById("passwordError");
 
-            usernameError.style.display = email ? "none" : "block";
-            passwordError.style.display = password ? "none" : "block";
+            usernameError.classList.toggle('visible', !email);
+            passwordError.classList.toggle('visible', !password);
 
             if (email && password) {
                 try {
-                    // 🔹 First, Send POST Request to Get Token
                     let loginResponse = await fetch("http://localhost:5000/api/auth/login", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -131,6 +248,9 @@
                     localStorage.setItem('token', token);
                     localStorage.setItem('name', loginResult.user.name);
                     localStorage.setItem('email', loginResult.user.email);
+                    localStorage.setItem('p_image', loginResult.user.p_image);
+                    localStorage.setItem('user_id', loginResult.user.id);
+                    localStorage.setItem('role', loginResult.user.role);
                     if (loginResult.status) {
                         window.location.href = "http://localhost:5000";
                     }
@@ -140,13 +260,11 @@
             }
         });
 
-
         function togglePassword() {
             let passwordField = document.getElementById("password");
             passwordField.type = passwordField.type === "password" ? "text" : "password";
         }
     </script>
-
 </body>
 
 </html>
