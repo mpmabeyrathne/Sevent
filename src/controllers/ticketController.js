@@ -3,6 +3,7 @@ const Event = require('../models/Event');
 const Ticket = require('../models/Ticket');
 const User = require('../models/User');
 const emailService = require('../services/emailService');
+const { getIo } = require('../services/socketService');
 
 exports.bookTicket = async (req, res) => {
   try {
@@ -24,7 +25,7 @@ exports.bookTicket = async (req, res) => {
 
     await Ticket.updateAvailableTickets(eventId, ticketsBooked);
 
-    const user = await User.findById(userId);;
+    const user = await User.findById(userId);
 
     const emailSent = await emailService.sendTicketEmail({
       userEmail: user.email,
@@ -36,6 +37,18 @@ exports.bookTicket = async (req, res) => {
       eventDate: selectedEvent.time,
       eventLocation: selectedEvent.location,
     });
+
+    // const io = getIo();
+    // const socketPayload = {
+    //   message: 'Event approved and list updated',
+    //   latestApprovedEvent: {
+    //     eventTitle: eventDetail.title,
+    //     event: eventDetail,
+    //   },
+    //   allApprovedEvents: approvedEvents,
+    // };
+
+    // io.emit('approvedEventsUpdate', socketPayload);
 
     res.status(201).json({
       message: 'Ticket booked successfully',

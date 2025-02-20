@@ -205,10 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const eventForm = document.getElementById('eventForm');
 
   // Open modal
-  console.log(createBtn);
   createBtn.addEventListener('click', () => {
     eventModal.style.display = 'block';
-    console.log(eventModal);
   });
 
   // Close modal
@@ -312,7 +310,6 @@ async function fetchAndTransformEvents() {
       creator_image: event.creator_image,
     }));
 
-    console.log(transformedEvents);
     return transformedEvents;
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -456,158 +453,173 @@ window.globalEvents = [];
 window.events = [];
 
 function formatEventData(event) {
-    const soldTickets = event.tickets?.sold || (event.total_tickets - event.available_tickets);
-    const eventDate = event.time ? new Date(event.time) : new Date(event.date);
-    const formattedTime = eventDate.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+  const soldTickets =
+    event.tickets?.sold || event.total_tickets - event.available_tickets;
+  const eventDate = event.time ? new Date(event.time) : new Date(event.date);
+  const formattedTime = eventDate.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
-    return {
-        id: event.id,
-        creator_name: event.creator_name || event.title,
-        creator_image: event.creator_image || 'default-profile.jpg',
-        location: event.location,
-        time: formattedTime,
-        description: event.description,
-        image: event.image?.startsWith('/') ? event.image : `/uploads/events/${event.image}`,
-        profilePic: event.profilePic || '/assets/images/profile_image.png',
-        tickets: {
-            total: event.tickets?.total || event.total_tickets,
-            sold: soldTickets,
-            price: event.tickets?.price || 1000
-        }
-    };
+  return {
+    id: event.id,
+    creator_name: event.creator_name || event.title,
+    creator_image: event.creator_image || 'default-profile.jpg',
+    location: event.location,
+    time: formattedTime,
+    description: event.description,
+    image: event.image?.startsWith('/')
+      ? event.image
+      : `/uploads/events/${event.image}`,
+    profilePic: event.profilePic || '/assets/images/profile_image.png',
+    tickets: {
+      total: event.tickets?.total || event.total_tickets,
+      sold: soldTickets,
+      price: event.tickets?.price || 1000,
+    },
+  };
 }
 // Function to render all events
 function renderEvents() {
   const memoFeedsContainer = document.querySelector('.memo-feeds');
 
   try {
-      if (window.globalEvents && window.globalEvents.length > 0) {
-          const formattedEvents = window.globalEvents.map(event => formatEventData(event));
-          memoFeedsContainer.innerHTML = formattedEvents
-              .map(event => createEventFeed(event))
-              .join('');
-      } else {
-          if (!window.events || window.events.length === 0) {
-              window.events = fetchAndTransformEvents();  
-          }
-
-          if (window.events && window.events.length > 0) {
-              memoFeedsContainer.innerHTML = window.events
-                  .map(event => createEventFeed(formatEventData(event)))
-                  .join('');
-          } else {
-              memoFeedsContainer.innerHTML = '<p class="no-events">No events available</p>';
-          }
+    if (window.globalEvents && window.globalEvents.length > 0) {
+      const formattedEvents = window.globalEvents.map((event) =>
+        formatEventData(event),
+      );
+      memoFeedsContainer.innerHTML = formattedEvents
+        .map((event) => createEventFeed(event))
+        .join('');
+    } else {
+      if (!window.events || window.events.length === 0) {
+        window.events = fetchAndTransformEvents();
       }
 
-      addEventListeners();
-      setupModal(); 
+      if (window.events && window.events.length > 0) {
+        memoFeedsContainer.innerHTML = window.events
+          .map((event) => createEventFeed(formatEventData(event)))
+          .join('');
+      } else {
+        memoFeedsContainer.innerHTML =
+          '<p class="no-events">No events available</p>';
+      }
+    }
+
+    addEventListeners();
+    setupModal();
   } catch (error) {
-      console.error('Error rendering events:', error);
-      memoFeedsContainer.innerHTML = '<p class="error">Error loading events. Please try again later.</p>';
+    console.error('Error rendering events:', error);
+    memoFeedsContainer.innerHTML =
+      '<p class="error">Error loading events. Please try again later.</p>';
   }
 }
 
 function eventDataFe(categoryId) {
-    const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
-    $.ajax({
-        url: `http://localhost:5000/api/events/category/${categoryId}`,
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        },
-        success: function(response) {
-            window.globalEvents = response.events;
-            renderEvents();
-        },
-        error: function(xhr, status, error) {
-            console.error('Error:', error);
-        }
-    });
+  $.ajax({
+    url: `http://localhost:5000/api/events/category/${categoryId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    success: function (response) {
+      window.globalEvents = response.events;
+      renderEvents();
+    },
+    error: function (xhr, status, error) {
+      console.error('Error:', error);
+    },
+  });
 }
 
 function addEventListeners() {
-    document.querySelectorAll('.uil-ellipsis-v').forEach(element => {
-        element.addEventListener('click', function(e) {
-            const eventId = this.getAttribute('data-event-id');
-            const modal = document.getElementById(`modal-${eventId}`);
-            if (modal) {
-                modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-            }
-        });
+  document.querySelectorAll('.uil-ellipsis-v').forEach((element) => {
+    element.addEventListener('click', function (e) {
+      const eventId = this.getAttribute('data-event-id');
+      const modal = document.getElementById(`modal-${eventId}`);
+      if (modal) {
+        modal.style.display =
+          modal.style.display === 'block' ? 'none' : 'block';
+      }
     });
+  });
 
-    document.querySelectorAll('.btn-purchase').forEach(button => {
-        button.addEventListener('click', function(e) {
-            const eventId = this.getAttribute('data-event-id');
-            console.log(eventId);
-        });
+  document.querySelectorAll('.btn-purchase').forEach((button) => {
+    button.addEventListener('click', function (e) {
+      const eventId = this.getAttribute('data-event-id');
     });
+  });
 
-    document.querySelectorAll('.comment-submit').forEach(button => {
-        button.addEventListener('click', function(e) {
-            const eventId = this.getAttribute('data-event-id');
-            const inputElement = document.querySelector(`.comment-input[data-event-id="${eventId}"]`);
-            if (inputElement && inputElement.value.trim()) {
-                console.log('Submit comment for event:', eventId, 'Comment:', inputElement.value);
-                inputElement.value = '';
-            }
-        });
+  document.querySelectorAll('.comment-submit').forEach((button) => {
+    button.addEventListener('click', function (e) {
+      const eventId = this.getAttribute('data-event-id');
+      const inputElement = document.querySelector(
+        `.comment-input[data-event-id="${eventId}"]`,
+      );
+      if (inputElement && inputElement.value.trim()) {
+        console.log(
+          'Submit comment for event:',
+          eventId,
+          'Comment:',
+          inputElement.value,
+        );
+        inputElement.value = '';
+      }
     });
-
+  });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const categoryId = urlParams.get('category');
-    
-    if (categoryId) {
-        eventDataFe(categoryId);
-    } else {
-        await renderEvents();
+  const urlParams = new URLSearchParams(window.location.search);
+  const categoryId = urlParams.get('category');
+
+  if (categoryId) {
+    eventDataFe(categoryId);
+  } else {
+    await renderEvents();
+  }
+
+  document.querySelector('.memo-feeds').addEventListener('click', (e) => {
+    if (e.target.classList.contains('uil-ellipsis-v')) {
+      const eventId = e.target.dataset.eventId;
+      const modal = document.getElementById(`modal-${eventId}`);
+
+      document.querySelectorAll('.modal').forEach((m) => {
+        if (m !== modal) m.style.display = 'none';
+      });
+
+      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
     }
+  });
 
-    document.querySelector('.memo-feeds').addEventListener('click', (e) => {
-        if (e.target.classList.contains('uil-ellipsis-v')) {
-            const eventId = e.target.dataset.eventId;
-            const modal = document.getElementById(`modal-${eventId}`);
+  document.querySelector('.memo-feeds').addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal-text')) {
+      const action = e.target.dataset.action;
+      const eventId = e.target.dataset.eventId;
 
-            document.querySelectorAll('.modal').forEach((m) => {
-                if (m !== modal) m.style.display = 'none';
-            });
+      if (action === 'delete') {
+        window.events = window.events.filter(
+          (event) => event.id !== parseInt(eventId),
+        );
+        renderEvents();
+      } else if (action === 'update') {
+        console.log(eventId);
+      }
+    }
+  });
 
-            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-        }
-    });
-
-    document.querySelector('.memo-feeds').addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal-text')) {
-            const action = e.target.dataset.action;
-            const eventId = e.target.dataset.eventId;
-
-            if (action === 'delete') {
-                window.events = window.events.filter((event) => event.id !== parseInt(eventId));
-                renderEvents();
-            } else if (action === 'update') {
-                console.log(eventId);
-            }
-        }
-    });
-
-    window.addEventListener('click', (e) => {
-        if (!e.target.classList.contains('uil-ellipsis-v')) {
-            document.querySelectorAll('.modal').forEach((modal) => {
-                modal.style.display = 'none';
-            });
-        }
-    });
+  window.addEventListener('click', (e) => {
+    if (!e.target.classList.contains('uil-ellipsis-v')) {
+      document.querySelectorAll('.modal').forEach((modal) => {
+        modal.style.display = 'none';
+      });
+    }
+  });
 });
 // Handle modal toggles and actions
 document.addEventListener('DOMContentLoaded', async () => {
@@ -669,7 +681,6 @@ function addNewEvent(eventData) {
 }
 
 function setupModal() {
-  // Use document.querySelectorAll to get all ticket purchase buttons
   const modalButtons = document.querySelectorAll('[id="ticket-purches-modal"]');
   const purchaseModal = document.getElementById('purchaseModal');
   const eventNameEl = document.getElementById('eventName');
@@ -679,37 +690,29 @@ function setupModal() {
   const cancelButton = document.getElementById('cancelPurchaseBtn');
   const confirmButton = document.querySelector('.btn-confirm');
 
-  // Add click event to all purchase buttons
   modalButtons.forEach((button) => {
     button.addEventListener('click', function () {
       const title = decodeURIComponent(this.getAttribute('data-title'));
       const price = parseFloat(this.getAttribute('data-price'));
       const eventId = this.getAttribute('data-event-id');
 
-      // Set modal content
       eventNameEl.innerText = title;
       ticketPriceEl.innerText = price.toFixed(2);
-      totalPriceEl.innerText = price.toFixed(2); // Default total for 1 ticket
+      totalPriceEl.innerText = price.toFixed(2);
 
-      // Store current event ID if needed for purchase confirmation
       purchaseModal.setAttribute('data-current-event', eventId);
 
-      // Reset quantity to 1 when opening modal
       quantityInput.value = 1;
 
-      // Update total when quantity changes
       updateTotal(price);
 
-      // Display the modal
       purchaseModal.style.display = 'flex';
     });
   });
 
-  // Function to update total price
   function updateTotal(price) {
     quantityInput.addEventListener('input', function () {
       const quantity = parseInt(this.value) || 1;
-      // Limit quantity to min/max attributes
       if (quantity < 1) this.value = 1;
       if (quantity > 10) this.value = 10;
 
@@ -720,12 +723,10 @@ function setupModal() {
     });
   }
 
-  // Close modal on cancel
   cancelButton.addEventListener('click', function () {
     purchaseModal.style.display = 'none';
   });
 
-  // Handle purchase confirmation
   confirmButton.addEventListener('click', function () {
     const eventId = purchaseModal.getAttribute('data-current-event');
     const quantity = parseInt(quantityInput.value);
@@ -735,19 +736,19 @@ function setupModal() {
     const tokenForPurches = localStorage.getItem('token');
 
     fetch('http://localhost:5000/api/tickets/book', {
-      method: 'POST', // Specify the request method
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${tokenForPurches}`, // If authentication is required
+        Authorization: `Bearer ${tokenForPurches}`,
       },
       body: JSON.stringify({
         eventId: eventId,
         ticketsBooked: quantity,
       }),
     })
-      .then((response) => response.json()) // Convert response to JSON
+      .then((response) => response.json())
       .then((data) => {
-        alert('Booking successful:', data);
+        alert('Booking successful');
       })
       .catch((error) => {
         console.error('Error booking ticket:', error);
@@ -760,6 +761,7 @@ function setupModal() {
     }
   });
 }
+
 document.addEventListener('DOMContentLoaded', function () {
   const adminBtn = document.getElementById('admin-btn');
   const createPostBtn = document.getElementById('create-event-btn');
@@ -1058,7 +1060,6 @@ socket.on('newApprovedEventNotification', (data) => {
 });
 
 socket.on('approvedEventsUpdate', (data) => {
-
   window.globalEvents = data.allApprovedEvents;
 
   renderEvents();
@@ -1095,11 +1096,9 @@ document.addEventListener('click', function (e) {
   }
 });
 
-// Add these additional functions to your client-side code
 
-// Function to initialize the notification panel
 const initializeNotifications = () => {
-  // Add clear all functionality
+
   const clearAllButton = document.querySelector('.clear-all');
   if (clearAllButton) {
     clearAllButton.addEventListener('click', (e) => {
@@ -1108,7 +1107,6 @@ const initializeNotifications = () => {
     });
   }
 
-  // Check if there are any stored notifications
   loadNotificationsFromStorage();
 };
 
@@ -1116,22 +1114,18 @@ const initializeNotifications = () => {
 const clearAllNotifications = () => {
   const notificationList = document.getElementById('notification-list');
   if (notificationList) {
-    // Remove all notifications except the "no notifications" message
     while (notificationList.firstChild) {
       notificationList.removeChild(notificationList.firstChild);
     }
 
-    // Add the "no notifications" message back
     const noNotificationsMessage = document.createElement('div');
     noNotificationsMessage.classList.add('no-notifications');
     noNotificationsMessage.textContent = 'No notifications yet';
     notificationList.appendChild(noNotificationsMessage);
 
-    // Reset notification count
     notificationCount = 0;
     updateNotificationCount(notificationCount);
 
-    // Clear from local storage
     localStorage.removeItem('notifications');
   }
 };
@@ -1141,7 +1135,6 @@ const displayMessage = (message, eventId) => {
   const notificationList = document.getElementById('notification-list');
   if (!notificationList) return;
 
-  // Remove "no notifications" message if present
   const noNotificationsMessage =
     notificationList.querySelector('.no-notifications');
   if (noNotificationsMessage) {
@@ -1174,13 +1167,12 @@ const displayMessage = (message, eventId) => {
     </div>
   `;
 
-  notificationList.prepend(notificationElement); // Add new notifications at the top
+  notificationList.prepend(notificationElement); 
 
-  // Save notifications to local storage
   saveNotificationsToStorage();
 };
 
-// Function to save notifications to local storage
+
 const saveNotificationsToStorage = () => {
   const notificationList = document.getElementById('notification-list');
   if (!notificationList) return;
@@ -1206,10 +1198,8 @@ const loadNotificationsFromStorage = () => {
     const notificationList = document.getElementById('notification-list');
 
     if (notificationList && notifications.length > 0) {
-      // Clear existing content
       notificationList.innerHTML = '';
 
-      // Add stored notifications
       notifications.forEach((notification) => {
         const notificationElement = document.createElement('div');
         notificationElement.classList.add('notification-item');
