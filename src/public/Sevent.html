@@ -25,9 +25,8 @@
             <h2 class="logo">Campus Events</h2>
 
             <div class="nav-links">
-                <a href="/events" class="nav-item">All Events</a>
-                <a href="/my-tickets" class="nav-item">My Tickets</a>
-                <a href="/categories" class="nav-item">Categories</a>
+                <a href="location reload()" class="nav-item">All Events</a>
+                <a href="/admin.html" id="admin-btn" style="display: none;" class="nav-item">Admin</a>
             </div>
 
             <div class="user-section">
@@ -88,13 +87,13 @@
                         <h3>Profile Edit</h3>
                     </a>
 
-                    <a class="leftside-item">
+                    <a class="leftside-item" id="signOut" onclick="signOut()">
                         <span><i class="uil uil-sign-out-alt"></i></span>
                         <h3>Sign out</h3>
                     </a>
                 </div>
 
-                <button id="create-event-btn" class="btn btn-primary">Create Post</button>
+                <button id="create-event-btn" style="display: none;" class="btn btn-primary">Create Post</button>
             </div>
 
 
@@ -327,10 +326,8 @@
     <script src="/jquery-3.6.0.js"></script>
     <script>
         const localSetName = localStorage.getItem('name');
-        console.log(localSetName);
         // Step 2: Access the <h3> element and remove any previous text content
         const nameElement = document.getElementById('#name');
-        console.log(nameElement)
         nameElement.textContent = ''; // Clears any existing text content
 
         // Step 3: Set the name retrieved from localStorage to the <h3> element

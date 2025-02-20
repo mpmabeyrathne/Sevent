@@ -294,6 +294,7 @@ async function fetchAndTransformEvents() {
 
     const transformedEvents = data.events.map((event, index) => ({
       id: event.id,
+      title: event.title || '',
       userName: event.created_by ? `User ${event.created_by}` : 'Anonymous',
       location: event.location || 'Unknown Location',
       time: new Date(event.created_at).toLocaleString(),
@@ -379,7 +380,11 @@ function createEventFeed(event) {
                 ${
                   availableTickets > 0
                     ? `
-                        <button class="btn btn-purchase" id="ticket-purches-modal" data-event-id="${event.id}">
+                        <button class="btn btn-purchase " data-title=${encodeURIComponent(
+                          event.title,
+                        )}  data-price=${
+                        event.tickets.price
+                      } id="ticket-purches-modal" data-event-id="${event.id}">
                             Book Ticket
                         </button>
                     `
@@ -480,19 +485,18 @@ function formatEventData(event) {
 // Function to render all events
 function renderEvents() {
   const memoFeedsContainer = document.querySelector('.memo-feeds');
-  
+
   try {
       if (window.globalEvents && window.globalEvents.length > 0) {
           const formattedEvents = window.globalEvents.map(event => formatEventData(event));
           memoFeedsContainer.innerHTML = formattedEvents
               .map(event => createEventFeed(event))
               .join('');
-      }
-      else {
+      } else {
           if (!window.events || window.events.length === 0) {
-              window.events = fetchAndTransformEvents(); // No await needed
+              window.events = fetchAndTransformEvents();  
           }
-          
+
           if (window.events && window.events.length > 0) {
               memoFeedsContainer.innerHTML = window.events
                   .map(event => createEventFeed(formatEventData(event)))
@@ -501,8 +505,9 @@ function renderEvents() {
               memoFeedsContainer.innerHTML = '<p class="no-events">No events available</p>';
           }
       }
-      
+
       addEventListeners();
+      setupModal(); 
   } catch (error) {
       console.error('Error rendering events:', error);
       memoFeedsContainer.innerHTML = '<p class="error">Error loading events. Please try again later.</p>';
@@ -556,6 +561,7 @@ function addEventListeners() {
             }
         });
     });
+
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -662,23 +668,107 @@ function addNewEvent(eventData) {
   renderEvents();
 }
 
-// document.addEventListener('DOMContentLoaded', function () {
-//   var modalButton = document.getElementById('ticket-purches-modal');
-//   var purchaseModal = document.getElementById('purchaseModal');
-//   var cancelButton = document.getElementById('cancelPurchaseBtn');
+function setupModal() {
+  // Use document.querySelectorAll to get all ticket purchase buttons
+  const modalButtons = document.querySelectorAll('[id="ticket-purches-modal"]');
+  const purchaseModal = document.getElementById('purchaseModal');
+  const eventNameEl = document.getElementById('eventName');
+  const ticketPriceEl = document.getElementById('ticketPrice');
+  const totalPriceEl = document.getElementById('totalPrice');
+  const quantityInput = document.getElementById('ticketQuantity');
+  const cancelButton = document.getElementById('cancelPurchaseBtn');
+  const confirmButton = document.querySelector('.btn-confirm');
 
-//   // Open modal
-//   modalButton.addEventListener('click', function () {
-//     purchaseModal.style.display = 'block';
-//   });
+  // Add click event to all purchase buttons
+  modalButtons.forEach((button) => {
+    button.addEventListener('click', function () {
+      const title = decodeURIComponent(this.getAttribute('data-title'));
+      const price = parseFloat(this.getAttribute('data-price'));
+      const eventId = this.getAttribute('data-event-id');
 
-//   // Close modal when clicking the cancel button
-//   cancelButton.addEventListener('click', function () {
-//     purchaseModal.style.display = 'none';
-//   });
-// });
+      // Set modal content
+      eventNameEl.innerText = title;
+      ticketPriceEl.innerText = price.toFixed(2);
+      totalPriceEl.innerText = price.toFixed(2); // Default total for 1 ticket
 
+      // Store current event ID if needed for purchase confirmation
+      purchaseModal.setAttribute('data-current-event', eventId);
+
+      // Reset quantity to 1 when opening modal
+      quantityInput.value = 1;
+
+      // Update total when quantity changes
+      updateTotal(price);
+
+      // Display the modal
+      purchaseModal.style.display = 'flex';
+    });
+  });
+
+  // Function to update total price
+  function updateTotal(price) {
+    quantityInput.addEventListener('input', function () {
+      const quantity = parseInt(this.value) || 1;
+      // Limit quantity to min/max attributes
+      if (quantity < 1) this.value = 1;
+      if (quantity > 10) this.value = 10;
+
+      const calculatedTotal = (
+        parseFloat(price) * parseInt(this.value)
+      ).toFixed(2);
+      totalPriceEl.innerText = calculatedTotal;
+    });
+  }
+
+  // Close modal on cancel
+  cancelButton.addEventListener('click', function () {
+    purchaseModal.style.display = 'none';
+  });
+
+  // Handle purchase confirmation
+  confirmButton.addEventListener('click', function () {
+    const eventId = purchaseModal.getAttribute('data-current-event');
+    const quantity = parseInt(quantityInput.value);
+
+    purchaseModal.style.display = 'none';
+
+    const tokenForPurches = localStorage.getItem('token');
+
+    fetch('http://localhost:5000/api/tickets/book', {
+      method: 'POST', // Specify the request method
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${tokenForPurches}`, // If authentication is required
+      },
+      body: JSON.stringify({
+        eventId: eventId,
+        ticketsBooked: quantity,
+      }),
+    })
+      .then((response) => response.json()) // Convert response to JSON
+      .then((data) => {
+        alert('Booking successful:', data);
+      })
+      .catch((error) => {
+        console.error('Error booking ticket:', error);
+      });
+  });
+
+  window.addEventListener('click', function (event) {
+    if (event.target === purchaseModal) {
+      purchaseModal.style.display = 'none';
+    }
+  });
+}
 document.addEventListener('DOMContentLoaded', function () {
+  const adminBtn = document.getElementById('admin-btn');
+  const createPostBtn = document.getElementById('create-event-btn');
+  const userRoleForAdmin = localStorage.getItem('role');
+  if (adminBtn && userRoleForAdmin === 'admin') {
+    adminBtn.style.display = 'inline-block';
+    createPostBtn.style.display = 'inline-block';
+  }
+
   // Handle comment submission
   document.addEventListener('click', function (e) {
     if (e.target.matches('.comment-submit')) {
@@ -1140,3 +1230,20 @@ const loadNotificationsFromStorage = () => {
 
 // Initialize notifications when document is ready
 document.addEventListener('DOMContentLoaded', initializeNotifications);
+
+function signOut() {
+  localStorage.clear();
+  window.location.href = '/login.html';
+}
+
+function redirectToLogin() {
+  const username = localStorage.getItem('name');
+  const email = localStorage.getItem('email');
+  const userId = localStorage.getItem('user_id');
+
+  if (!username || !email || !userId) {
+    window.location.href = '/login.html';
+  }
+}
+
+redirectToLogin();
