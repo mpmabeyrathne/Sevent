@@ -73,6 +73,27 @@ const User = {
 
     return result.rows[0];
   },
+
+  async updateUserRole(userId, role) {
+    try {
+      const result = await pool.query(
+        'UPDATE users SET role = $1 WHERE id = $2',
+        [role, userId],
+      );
+
+      if (result.rowCount === 0) {
+        return null;
+      }
+
+      const rows = await pool.query('SELECT * FROM users WHERE id = $1', [
+        userId,
+      ]);
+      return rows.rows[0];
+    } catch (error) {
+      console.error('Error in updateUserRole:', error);
+      throw error;
+    }
+  },
 };
 
 module.exports = User;

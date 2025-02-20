@@ -22,5 +22,6 @@ router.put(
   upload.single('image'),
   authController.updateUser,
 );
+router.post('/user/role/:id', authController.updateUserRole);
 
 module.exports = router;

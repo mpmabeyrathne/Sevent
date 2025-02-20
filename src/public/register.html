@@ -266,6 +266,16 @@
                 <p class="error" id="passwordError">Password is required</p>
             </div>
 
+            <div class="form-group password-container">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+                <button type="button" class="toggle-password" onclick="toggleConfirmPassword()">
+                    👁️
+                </button>
+                <p class="error" id="confirmPasswordError">Please confirm your password</p>
+            </div>
+
+
             <button type="submit" class="register-btn">Create Account</button>
 
             <div class="login-link">
@@ -293,6 +303,12 @@
             passwordField.type = passwordField.type === "password" ? "text" : "password";
         }
 
+        function toggleConfirmPassword() {
+            let confirmPasswordField = document.getElementById("confirmPassword");
+            confirmPasswordField.type = confirmPasswordField.type === "password" ? "text" : "password";
+        }
+
+
         // Form submission
         document.getElementById("registerForm").addEventListener("submit", async function (event) {
             event.preventDefault();
@@ -300,17 +316,19 @@
             let name = document.getElementById("name").value.trim();
             let email = document.getElementById("email").value.trim();
             let password = document.getElementById("password").value.trim();
+            let confirmPassword = document.getElementById("confirmPassword").value.trim();
             let profilePic = document.getElementById("profilePic").files[0];
-            console.log(profilePic)
 
             let nameError = document.getElementById("nameError");
             let emailError = document.getElementById("emailError");
             let passwordError = document.getElementById("passwordError");
+            let confirmPasswordError = document.getElementById("confirmPasswordError");
 
             // Reset errors
             nameError.classList.toggle('visible', !name);
             emailError.classList.toggle('visible', !email);
             passwordError.classList.toggle('visible', !password);
+            confirmPasswordError.classList.toggle('visible', !confirmPassword);
 
             // Validate email format
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -320,8 +338,14 @@
                 return;
             }
 
-            console.log(name, email, password)
-            if (name && email && password) {
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                confirmPasswordError.textContent = "Passwords do not match";
+                confirmPasswordError.classList.add('visible');
+                return;
+            }
+
+            if (name && email && password && confirmPassword) {
                 try {
                     const formData = new FormData();
                     formData.append('name', name);
@@ -330,8 +354,6 @@
                     if (profilePic) {
                         formData.append('image', profilePic);
                     }
-
-                    console.log(formData)
 
                     let registerResponse = await fetch("http://localhost:5000/api/auth/register", {
                         method: "POST",
@@ -345,13 +367,36 @@
                     }
 
                     if (registerResult.status) {
-                        window.location.href = "login.html";
+                        showPopup("Successfully created your account");
+                        window.location.href = "/login.html";
                     }
                 } catch (error) {
                     console.error("Error:", error);
                 }
             }
         });
+
+
+        function showPopup(message) {
+            let popup = document.createElement("div");
+            popup.textContent = message;
+            popup.style.position = "fixed";
+            popup.style.top = "50%";
+            popup.style.left = "50%";
+            popup.style.transform = "translate(-50%, -50%)";
+            popup.style.padding = "20px";
+            popup.style.backgroundColor = "#d4edda";
+            popup.style.color = "#155724";
+            popup.style.border = "1px solid #155724";
+            popup.style.borderRadius = "5px";
+            popup.style.zIndex = "1000";
+            document.body.appendChild(popup);
+
+            setTimeout(() => {
+                popup.remove();
+            }, 3000);
+        }
+
     </script>
 </body>
 

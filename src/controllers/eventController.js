@@ -104,7 +104,6 @@ exports.approveRejectEventRequest = async (req, res) => {
 
     const eventDteatail = await Event.getEventById(eventRequest.event_id);
 
-    console.log(eventRequest);
     if (newStatus === 'approved') {
       const io = getIo();
       io.emit('newApprovedEventNotification', {
