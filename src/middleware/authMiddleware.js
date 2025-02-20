@@ -28,7 +28,6 @@ exports.verifyAdmin = async (req, res, next) => {
     const email = req.user.email;
 
     const result = await User.findByEmail(email);
-    console.log(result);
     if (!result) {
       return res.status(404).json({ message: 'User not found.' });
     }

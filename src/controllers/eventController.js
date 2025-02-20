@@ -83,7 +83,6 @@ exports.approveRejectEventRequest = async (req, res) => {
     const { requestId } = req.params;
     const { action } = req.body;
 
-    console.log({ requestId, action });
 
     if (action !== 'approve' && action !== 'reject') {
       return res
@@ -92,27 +91,22 @@ exports.approveRejectEventRequest = async (req, res) => {
     }
 
     const eventRequest = await EventRequest.findById(requestId);
-    console.log(eventRequest);
 
     if (!eventRequest) {
       return res.status(404).json({ message: 'Event request not found' });
     }
 
     const newStatus = action === 'approve' ? 'approved' : 'rejected';
-    console.log('New status:', newStatus);
 
     const updatedEventRequest = await EventRequest.updateStatus(
       requestId,
       newStatus,
     );
-    console.log(updatedEventRequest);
 
     const eventDetail = await Event.getEventById(eventRequest.event_id);
-    console.log(eventDetail);
 
     if (newStatus === 'approved') {
       const approvedEventRequests = await EventRequest.getApprovedEvents();
-      console.log(approvedEventRequests);
       
       const approvedEvents = [];
       for (let request of approvedEventRequests) {
@@ -121,7 +115,6 @@ exports.approveRejectEventRequest = async (req, res) => {
           approvedEvents.push(event);
         }
       }
-      console.log(approvedEvents);
 
       const io = getIo();
       const socketPayload = {
@@ -132,7 +125,6 @@ exports.approveRejectEventRequest = async (req, res) => {
         },
         allApprovedEvents: approvedEvents
       };
-      console.log(socketPayload);
       
       io.emit('approvedEventsUpdate', socketPayload);
 
@@ -163,7 +155,6 @@ exports.getApprovedEvents = async (req, res) => {
         .json({ message: 'No approved event requests found' });
     }
 
-    // For each approved event request, get the associated event details
     const events = [];
     for (let request of approvedEventRequests) {
       const event = await EventRequest.getEventDetailsByRequest(
