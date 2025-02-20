@@ -86,9 +86,12 @@ const Event = {
             e.category_id, 
             e.created_by, 
             e.created_at,
-            e.image
+            e.image,
+            u.name AS creator_name, 
+            u.p_image AS creator_image 
         FROM events e
         INNER JOIN event_requests er ON e.id = er.event_id
+        INNER JOIN users u ON e.created_by = u.id 
         WHERE er.status = 'approved' AND e.category_id = $1
         ORDER BY e.created_at DESC
     `;

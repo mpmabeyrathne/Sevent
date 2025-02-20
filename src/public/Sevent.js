@@ -302,7 +302,7 @@ async function fetchAndTransformEvents() {
       image: event.image
         ? `/uploads/events/${event.image}`
         : '/assets/images/default-event.jpg',
-      profilePic: '/assets/images/profile-00.jpg',
+      profilePic: '/assets/images/profile_image.png',
       tickets: {
         total: event.total_tickets,
         sold: event.total_tickets - event.available_tickets,
@@ -452,16 +452,163 @@ function createCommentElement(comment) {
     `;
 }
 
+window.globalEvents = [];
+window.events = [];
+
+function formatEventData(event) {
+    const soldTickets = event.tickets?.sold || (event.total_tickets - event.available_tickets);
+    const eventDate = event.time ? new Date(event.time) : new Date(event.date);
+    const formattedTime = eventDate.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    return {
+        id: event.id,
+        creator_name: event.creator_name || event.title,
+        creator_image: event.creator_image || 'default-profile.jpg',
+        location: event.location,
+        time: formattedTime,
+        description: event.description,
+        image: event.image?.startsWith('/') ? event.image : `/uploads/events/${event.image}`,
+        profilePic: event.profilePic || '/assets/images/profile_image.png',
+        tickets: {
+            total: event.tickets?.total || event.total_tickets,
+            sold: soldTickets,
+            price: event.tickets?.price || 1000
+        }
+    };
+}
 // Function to render all events
 function renderEvents() {
   const memoFeedsContainer = document.querySelector('.memo-feeds');
-  memoFeedsContainer.innerHTML = events
-    .map((event) => createEventFeed(event))
-    .join('');
 
-  setupModal();
+  try {
+      if (window.globalEvents && window.globalEvents.length > 0) {
+          const formattedEvents = window.globalEvents.map(event => formatEventData(event));
+          memoFeedsContainer.innerHTML = formattedEvents
+              .map(event => createEventFeed(event))
+              .join('');
+      } else {
+          if (!window.events || window.events.length === 0) {
+              window.events = fetchAndTransformEvents();  
+          }
+
+          if (window.events && window.events.length > 0) {
+              memoFeedsContainer.innerHTML = window.events
+                  .map(event => createEventFeed(formatEventData(event)))
+                  .join('');
+          } else {
+              memoFeedsContainer.innerHTML = '<p class="no-events">No events available</p>';
+          }
+      }
+
+      addEventListeners();
+      setupModal(); 
+  } catch (error) {
+      console.error('Error rendering events:', error);
+      memoFeedsContainer.innerHTML = '<p class="error">Error loading events. Please try again later.</p>';
+  }
 }
 
+function eventDataFe(categoryId) {
+    const token = localStorage.getItem('token');
+
+    $.ajax({
+        url: `http://localhost:5000/api/events/category/${categoryId}`,
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        success: function(response) {
+            window.globalEvents = response.events;
+            renderEvents();
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+        }
+    });
+}
+
+function addEventListeners() {
+    document.querySelectorAll('.uil-ellipsis-v').forEach(element => {
+        element.addEventListener('click', function(e) {
+            const eventId = this.getAttribute('data-event-id');
+            const modal = document.getElementById(`modal-${eventId}`);
+            if (modal) {
+                modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-purchase').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const eventId = this.getAttribute('data-event-id');
+            console.log(eventId);
+        });
+    });
+
+    document.querySelectorAll('.comment-submit').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const eventId = this.getAttribute('data-event-id');
+            const inputElement = document.querySelector(`.comment-input[data-event-id="${eventId}"]`);
+            if (inputElement && inputElement.value.trim()) {
+                console.log('Submit comment for event:', eventId, 'Comment:', inputElement.value);
+                inputElement.value = '';
+            }
+        });
+    });
+
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryId = urlParams.get('category');
+    
+    if (categoryId) {
+        eventDataFe(categoryId);
+    } else {
+        await renderEvents();
+    }
+
+    document.querySelector('.memo-feeds').addEventListener('click', (e) => {
+        if (e.target.classList.contains('uil-ellipsis-v')) {
+            const eventId = e.target.dataset.eventId;
+            const modal = document.getElementById(`modal-${eventId}`);
+
+            document.querySelectorAll('.modal').forEach((m) => {
+                if (m !== modal) m.style.display = 'none';
+            });
+
+            modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+        }
+    });
+
+    document.querySelector('.memo-feeds').addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-text')) {
+            const action = e.target.dataset.action;
+            const eventId = e.target.dataset.eventId;
+
+            if (action === 'delete') {
+                window.events = window.events.filter((event) => event.id !== parseInt(eventId));
+                renderEvents();
+            } else if (action === 'update') {
+                console.log(eventId);
+            }
+        }
+    });
+
+    window.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('uil-ellipsis-v')) {
+            document.querySelectorAll('.modal').forEach((modal) => {
+                modal.style.display = 'none';
+            });
+        }
+    });
+});
 // Handle modal toggles and actions
 document.addEventListener('DOMContentLoaded', async () => {
   events = await fetchAndTransformEvents();
@@ -514,7 +661,7 @@ function addNewEvent(eventData) {
     time: 'just now',
     description: eventData.description,
     image: eventData.image,
-    profilePic: '/assets/images/profile-00.jpg',
+    profilePic: '/assets/images/profile_image.png',
   };
 
   events.unshift(newEvent);
